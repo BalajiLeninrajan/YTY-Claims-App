@@ -25,6 +25,7 @@ class SettingsController with ChangeNotifier {
   /// settings from the service.
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
+    _loginFlag = await _settingsService.loginFlag();
 
     // Important! Inform listeners a change has occurred.
     notifyListeners();
@@ -46,5 +47,12 @@ class SettingsController with ChangeNotifier {
     // Persist the changes to a local database or the internet using the
     // SettingService.
     await _settingsService.updateThemeMode(newThemeMode);
+  }
+
+  late bool _loginFlag;
+  bool get loginFlag => _loginFlag;
+
+  Future<void> updateLoginFlag() async {
+    _loginFlag = !_loginFlag;
   }
 }
