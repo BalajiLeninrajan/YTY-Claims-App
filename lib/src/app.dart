@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:yty_claim_app/src/screens/login_screen.dart';
 
-import 'sample_feature/sample_item_details_view.dart';
-import 'sample_feature/sample_item_list_view.dart';
-import 'settings/settings_controller.dart';
-import 'settings/settings_view.dart';
+import 'package:yty_claim_app/src/screens/home_screen.dart';
+import 'package:yty_claim_app/src/screens/login_screen.dart';
+import 'package:yty_claim_app/src/sample_feature/sample_item_details_view.dart';
+import 'package:yty_claim_app/src/settings/settings_controller.dart';
+import 'package:yty_claim_app/src/settings/settings_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -67,15 +67,19 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute<void>(
               settings: routeSettings,
               builder: (BuildContext context) {
+                if (!settingsController.loginFlag) {
+                  return LoginScreen(controller: settingsController);
+                }
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
+                  case LoginScreen.routeName:
+                    return LoginScreen(controller: settingsController);
+                  case HomeScreen.routeName:
                   default:
-                    return settingsController.loginFlag
-                        ? const SampleItemListView()
-                        : LoginScreen(controller: settingsController);
+                    return const HomeScreen();
                 }
               },
             );
