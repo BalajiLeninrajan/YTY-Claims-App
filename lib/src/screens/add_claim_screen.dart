@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:http/http.dart';
 import 'package:yty_claim_app/src/controllers/claim_item.dart';
@@ -25,16 +26,27 @@ class ClaimType {
 class _AddClaimScreenState extends State<AddClaimScreen> {
   List<ClaimType> _claimTypes = [];
   ClaimType? _selectedClaimType;
-  bool _claimTypeErrorFlag = false;
 
   DateTime? _selectedDate;
   bool _dateErrorFlag = false;
 
   final TextEditingController _descriptionController = TextEditingController();
 
+  List<String> _currencies = [];
+  String? _selectedCurrency = 'MYR';
+
+  String? _exchangeRate = '1';
+
+  final TextEditingController _billAmountController = TextEditingController();
+  bool _billAmountErrorFlag = false;
+
+  final TextEditingController _taxController = TextEditingController();
+  bool _taxErrorFlag = false;
+
   @override
   void initState() {
     _getClaimTypesSync();
+    _getCurrenciesSync();
     super.initState();
   }
 
@@ -78,6 +90,69 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
               ),
             )
             .toList();
+        _selectedClaimType = _claimTypes.first;
+      });
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to reach server'),
+        ),
+      );
+    }
+  }
+
+  void _getCurrenciesSync() => _getCurrencies();
+
+  Future<void> _getCurrencies() async {
+    final Response response = await post(
+      Uri.parse('https://ytygroup.app/claim-api/api/getCurrencyList.php'),
+      headers: {
+        'Authorization':
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJZVFkiLCJuYW1lIjoiWVRZIENsYWltIFBvcnRhbCIsImFkbWluIjp0cnVlfQ.0rUmUcY752J_4dXYMr4Tfo1_BuZnXt7Uv4IpshDbwEI',
+        'Content-Type': 'application/json'
+      },
+    );
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      setState(() {
+        _currencies = responseData[0]['data']
+            .map<String>(
+              (dynamic currency) => currency['FROM_CURRENCY'] as String,
+            )
+            .toList();
+      });
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to reach server'),
+        ),
+      );
+    }
+  }
+
+  void _getExchangeRateSync(String currency) => _getExchangeRate(currency);
+
+  Future<void> _getExchangeRate(String currency) async {
+    final Response response = await post(
+      Uri.parse('https://ytygroup.app/claim-api/api/getExchangeRate.php'),
+      headers: {
+        'Authorization':
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJZVFkiLCJuYW1lIjoiWVRZIENsYWltIFBvcnRhbCIsImFkbWluIjp0cnVlfQ.0rUmUcY752J_4dXYMr4Tfo1_BuZnXt7Uv4IpshDbwEI',
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode(
+        {
+          'DT': DateTime.now().toIso8601String().substring(0, 10),
+          'CURR': currency
+        },
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      setState(() {
+        _exchangeRate = responseData[0]['data'][0]['RATE'];
       });
     } else {
       if (!mounted) return;
@@ -122,7 +197,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                     border: const OutlineInputBorder(),
                     labelText: 'Claim Type',
                     errorText:
-                        _claimTypeErrorFlag ? 'Claim Type Required' : null,
+                        _claimTypes.isEmpty ? 'Claim Type Required' : null,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -132,7 +207,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                   label: Text(
                     _selectedDate == null
                         ? (_dateErrorFlag ? 'Date Required' : 'Bill Date')
-                        : '${_selectedDate?.toString().substring(0, 10)}',
+                        : '${_selectedDate?.toIso8601String().substring(0, 10)}',
                   ),
                   icon: const Icon(Icons.date_range),
                   style: _dateErrorFlag
@@ -150,10 +225,71 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                     border: OutlineInputBorder(),
                     labelText: 'Description',
                   ),
-                )
-                // Currency and exchange rate
+                ),
+                const SizedBox(height: 24),
+                // Currency
+                DropdownButtonFormField<String>(
+                  items: _currencies
+                      .map<DropdownMenuItem<String>>(
+                        (String currency) => DropdownMenuItem<String>(
+                          value: currency,
+                          child: Text(currency),
+                        ),
+                      )
+                      .toList(),
+                  value: _selectedCurrency,
+                  onChanged: (String? currency) {
+                    setState(() {
+                      _selectedCurrency = currency;
+                      _exchangeRate = null;
+                    });
+                    _getExchangeRateSync(currency ?? 'MYR');
+                  },
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: 'Currency',
+                    errorText: _currencies.isEmpty ? 'Currency Required' : null,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // exchange rate
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    'Exchange Rate: ${_exchangeRate ?? 'Loading exchange rate'}',
+                  ),
+                ),
                 // bill ammount
+                TextField(
+                  controller: _billAmountController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: 'Bill Amount',
+                    errorText:
+                        _billAmountErrorFlag ? 'Bill Amount Required' : null,
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))
+                  ],
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                ),
                 // tax ammount
+                TextField(
+                  controller: _taxController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: 'Tax Amount',
+                    errorText: _taxErrorFlag ? 'Tax Amount Required' : null,
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))
+                  ],
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                ),
                 // total and attachment
               ],
             ),
