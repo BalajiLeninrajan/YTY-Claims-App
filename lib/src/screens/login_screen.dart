@@ -169,7 +169,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       border: OutlineInputBorder(),
                       labelText: 'Name',
                     ),
-                    onChanged: (UserItem? user) {},
+                    onChanged: (UserItem? user) {
+                      setState(() {
+                        _selectedUser = user;
+                      });
+                    },
                   ),
                   const SizedBox(height: 16),
                   // Password

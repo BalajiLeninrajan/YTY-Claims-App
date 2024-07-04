@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
+import 'package:http/http.dart';
 import 'package:yty_claim_app/src/controllers/claim_item.dart';
 
 class AddClaimScreen extends StatefulWidget {
@@ -20,10 +23,20 @@ class ClaimType {
 }
 
 class _AddClaimScreenState extends State<AddClaimScreen> {
+  List<ClaimType> _claimTypes = [];
+  ClaimType? _selectedClaimType;
+  bool _claimTypeErrorFlag = false;
+
   DateTime? _selectedDate;
   bool _dateErrorFlag = false;
 
   final TextEditingController _descriptionController = TextEditingController();
+
+  @override
+  void initState() {
+    _getClaimTypesSync();
+    super.initState();
+  }
 
   void _selectDate(BuildContext context) async {
     setState(() {
@@ -42,6 +55,40 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     }
   }
 
+  void _getClaimTypesSync() => _getClaimTypes();
+
+  Future<void> _getClaimTypes() async {
+    final Response response = await post(
+      Uri.parse('https://ytygroup.app/claim-api/api/getClaimList.php'),
+      headers: {
+        'Authorization':
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJZVFkiLCJuYW1lIjoiWVRZIENsYWltIFBvcnRhbCIsImFkbWluIjp0cnVlfQ.0rUmUcY752J_4dXYMr4Tfo1_BuZnXt7Uv4IpshDbwEI',
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode({'CLAIMGROUP': 'YTY_CL_A'}),
+    );
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      setState(() {
+        _claimTypes = responseData[0]['data']
+            .map<ClaimType>(
+              (dynamic type) => ClaimType(
+                code: type['CLAIM_TYPE_CODE'],
+                name: type['CLAIM_TYPE_NAME'],
+              ),
+            )
+            .toList();
+      });
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to reach server'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,8 +99,33 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
             width: 768,
             padding: const EdgeInsets.all(32),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                const SizedBox(height: 32),
                 // Claim type
+                DropdownButtonFormField<ClaimType>(
+                  items: _claimTypes
+                      .map<DropdownMenuItem<ClaimType>>(
+                        (ClaimType claimType) => DropdownMenuItem<ClaimType>(
+                          value: claimType,
+                          child: Text(claimType.name),
+                        ),
+                      )
+                      .toList(),
+                  value: _selectedClaimType,
+                  onChanged: (ClaimType? claimType) {
+                    setState(() {
+                      _selectedClaimType = claimType;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: 'Claim Type',
+                    errorText:
+                        _claimTypeErrorFlag ? 'Claim Type Required' : null,
+                  ),
+                ),
+                const SizedBox(height: 16),
                 // Date
                 TextButton.icon(
                   onPressed: () => _selectDate(context),
@@ -70,11 +142,13 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                         )
                       : null,
                 ),
+                const SizedBox(height: 16),
                 // Description
                 TextField(
                   controller: _descriptionController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
+                    labelText: 'Description',
                   ),
                 )
                 // Currency and exchange rate
