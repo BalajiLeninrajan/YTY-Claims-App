@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
@@ -43,11 +45,26 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
   final TextEditingController _taxController = TextEditingController();
   bool _taxErrorFlag = false;
 
+  double _total = 0;
+
+  File? _attachment;
+
   @override
   void initState() {
     _getClaimTypesSync();
     _getCurrenciesSync();
+    _billAmountController.addListener(_getTotal);
+    _taxController.addListener(_getTotal);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _billAmountController.removeListener(_getTotal);
+    _taxController.removeListener(_getTotal);
+    _billAmountController.dispose();
+    _taxController.dispose();
+    super.dispose();
   }
 
   void _selectDate(BuildContext context) async {
@@ -164,6 +181,16 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     }
   }
 
+  void _getTotal() {
+    final double billAmount = double.tryParse(_billAmountController.text) ?? 0;
+    final double taxAmount = double.tryParse(_taxController.text) ?? 0;
+    final double exchangeRate = double.tryParse(_exchangeRate ?? '1') ?? 1;
+
+    setState(() {
+      _total = (billAmount + taxAmount) * exchangeRate;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,126 +199,178 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
         child: Center(
           child: Container(
             width: 768,
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const SizedBox(height: 32),
-                // Claim type
-                DropdownButtonFormField<ClaimType>(
-                  items: _claimTypes
-                      .map<DropdownMenuItem<ClaimType>>(
-                        (ClaimType claimType) => DropdownMenuItem<ClaimType>(
-                          value: claimType,
-                          child: Text(claimType.name),
-                        ),
-                      )
-                      .toList(),
-                  value: _selectedClaimType,
-                  onChanged: (ClaimType? claimType) {
-                    setState(() {
-                      _selectedClaimType = claimType;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: 'Claim Type',
-                    errorText:
-                        _claimTypes.isEmpty ? 'Claim Type Required' : null,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Date
-                TextButton.icon(
-                  onPressed: () => _selectDate(context),
-                  label: Text(
-                    _selectedDate == null
-                        ? (_dateErrorFlag ? 'Date Required' : 'Bill Date')
-                        : '${_selectedDate?.toIso8601String().substring(0, 10)}',
-                  ),
-                  icon: const Icon(Icons.date_range),
-                  style: _dateErrorFlag
-                      ? TextButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          iconColor: Colors.red,
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const SizedBox(height: 16),
+                  // Claim type
+                  DropdownButtonFormField<ClaimType>(
+                    items: _claimTypes
+                        .map<DropdownMenuItem<ClaimType>>(
+                          (ClaimType claimType) => DropdownMenuItem<ClaimType>(
+                            value: claimType,
+                            child: Text(claimType.name),
+                          ),
                         )
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                // Description
-                TextField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Description',
+                        .toList(),
+                    value: _selectedClaimType,
+                    onChanged: (ClaimType? claimType) {
+                      setState(() {
+                        _selectedClaimType = claimType;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: 'Claim Type',
+                      errorText:
+                          _claimTypes.isEmpty ? 'Claim Type Required' : null,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                // Currency
-                DropdownButtonFormField<String>(
-                  items: _currencies
-                      .map<DropdownMenuItem<String>>(
-                        (String currency) => DropdownMenuItem<String>(
-                          value: currency,
-                          child: Text(currency),
+                  const SizedBox(height: 16),
+                  // Date
+                  FilledButton.tonalIcon(
+                    onPressed: () => _selectDate(context),
+                    label: Text(
+                      _selectedDate == null
+                          ? (_dateErrorFlag ? 'Date Required' : 'Bill Date')
+                          : '${_selectedDate?.toIso8601String().substring(0, 10)}',
+                    ),
+                    icon: const Icon(Icons.date_range),
+                    style: _dateErrorFlag
+                        ? TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            iconColor: Colors.red,
+                          )
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  // Description
+                  TextField(
+                    controller: _descriptionController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Description',
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Currency
+                  DropdownButtonFormField<String>(
+                    items: _currencies
+                        .map<DropdownMenuItem<String>>(
+                          (String currency) => DropdownMenuItem<String>(
+                            value: currency,
+                            child: Text(currency),
+                          ),
+                        )
+                        .toList(),
+                    value: _selectedCurrency,
+                    onChanged: (String? currency) {
+                      setState(() {
+                        _selectedCurrency = currency;
+                        _exchangeRate = null;
+                      });
+                      _getExchangeRateSync(currency ?? 'MYR');
+                    },
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: 'Currency',
+                      errorText:
+                          _currencies.isEmpty ? 'Currency Required' : null,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // exchange rate
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Exchange Rate: ${_exchangeRate ?? 'Loading exchange rate'}',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // bill ammount
+                  TextField(
+                    controller: _billAmountController,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: 'Bill Amount',
+                      errorText:
+                          _billAmountErrorFlag ? 'Bill Amount Required' : null,
+                    ),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}'))
+                    ],
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // tax ammount
+                  TextField(
+                    controller: _taxController,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: 'Tax Amount',
+                      errorText: _taxErrorFlag ? 'Tax Amount Required' : null,
+                    ),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}'))
+                    ],
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // total
+                  TextButton.icon(
+                    onPressed: () {},
+                    label: Text(
+                      'Total (MYR): ${_total.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    icon: const Icon(Icons.wallet),
+                  ),
+                  const SizedBox(height: 16),
+                  // attachment
+                  FilledButton.tonalIcon(
+                    onPressed: () async {
+                      FilePickerResult? result = await FilePicker.platform
+                          .pickFiles(allowMultiple: false);
+                      if (result != null) {
+                        setState(() {
+                          _attachment = File(result.files.single.path!);
+                        });
+                      }
+                    },
+                    label: Text(
+                      _attachment == null
+                          ? 'Attach'
+                          : '...${_attachment!.path.substring(_attachment!.path.length - 12)}',
+                    ),
+                    icon: const Icon(Icons.attach_file),
+                  ),
+                  const SizedBox(height: 16),
+                  OverflowBar(
+                    alignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        label: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('Add Claim'),
                         ),
+                        icon: const Icon(Icons.add),
                       )
-                      .toList(),
-                  value: _selectedCurrency,
-                  onChanged: (String? currency) {
-                    setState(() {
-                      _selectedCurrency = currency;
-                      _exchangeRate = null;
-                    });
-                    _getExchangeRateSync(currency ?? 'MYR');
-                  },
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: 'Currency',
-                    errorText: _currencies.isEmpty ? 'Currency Required' : null,
+                    ],
                   ),
-                ),
-                const SizedBox(height: 16),
-                // exchange rate
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Exchange Rate: ${_exchangeRate ?? 'Loading exchange rate'}',
-                  ),
-                ),
-                // bill ammount
-                TextField(
-                  controller: _billAmountController,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: 'Bill Amount',
-                    errorText:
-                        _billAmountErrorFlag ? 'Bill Amount Required' : null,
-                  ),
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))
-                  ],
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                ),
-                // tax ammount
-                TextField(
-                  controller: _taxController,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: 'Tax Amount',
-                    errorText: _taxErrorFlag ? 'Tax Amount Required' : null,
-                  ),
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))
-                  ],
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                ),
-                // total and attachment
-              ],
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
         ),
