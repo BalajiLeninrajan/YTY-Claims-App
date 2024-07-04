@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yty_claim_app/src/sample_feature/sample_item_list_view.dart';
-import 'package:yty_claim_app/src/settings/settings_controller.dart';
+import 'package:yty_claim_app/src/controllers/settings_controller.dart';
 
 class UserItem {
   final String username;

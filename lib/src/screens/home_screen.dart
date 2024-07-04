@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yty_claim_app/src/settings/settings_view.dart';
+import 'package:yty_claim_app/src/settings/settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -21,7 +21,7 @@ class HomeScreen extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {
-              Navigator.restorablePushNamed(context, SettingsView.routeName);
+              Navigator.restorablePushNamed(context, SettingsScreen.routeName);
             },
             icon: const Icon(Icons.settings),
           ),

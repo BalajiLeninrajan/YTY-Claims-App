@@ -5,8 +5,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:yty_claim_app/src/screens/home_screen.dart';
 import 'package:yty_claim_app/src/screens/login_screen.dart';
 import 'package:yty_claim_app/src/sample_feature/sample_item_details_view.dart';
-import 'package:yty_claim_app/src/settings/settings_controller.dart';
-import 'package:yty_claim_app/src/settings/settings_view.dart';
+import 'package:yty_claim_app/src/controllers/settings_controller.dart';
+import 'package:yty_claim_app/src/settings/settings_screen.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -71,8 +71,8 @@ class MyApp extends StatelessWidget {
                   return LoginScreen(controller: settingsController);
                 }
                 switch (routeSettings.name) {
-                  case SettingsView.routeName:
-                    return SettingsView(controller: settingsController);
+                  case SettingsScreen.routeName:
+                    return SettingsScreen(controller: settingsController);
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
                   case LoginScreen.routeName:
