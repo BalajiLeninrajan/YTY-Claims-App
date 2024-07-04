@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-import 'package:yty_claim_app/src/sample_feature/sample_item_list_view.dart';
 import 'package:yty_claim_app/src/controllers/settings_controller.dart';
 import 'package:yty_claim_app/src/screens/home_screen.dart';
 
