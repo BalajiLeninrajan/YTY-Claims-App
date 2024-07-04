@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
                   default:
                     return settingsController.loginFlag
                         ? const SampleItemListView()
-                        : const LoginScreen();
+                        : LoginScreen(controller: settingsController);
                 }
               },
             );

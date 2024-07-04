@@ -54,5 +54,8 @@ class SettingsController with ChangeNotifier {
 
   Future<void> updateLoginFlag() async {
     _loginFlag = !_loginFlag;
+    notifyListeners();
+
+    await _settingsService.updateLoginFlag(_loginFlag);
   }
 }

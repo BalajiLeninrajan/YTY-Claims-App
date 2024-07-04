@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:yty_claim_app/src/sample_feature/sample_item_list_view.dart';
+import 'package:yty_claim_app/src/settings/settings_controller.dart';
 
 class UserItem {
   final String username;
@@ -8,9 +10,10 @@ class UserItem {
 }
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, required this.controller});
 
   static const routeName = '/login';
+  final SettingsController controller;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -46,6 +49,19 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _loginUser() {
+    final password = _passwordController.text;
+    if (password != '1234') {
+      setState(() {
+        _loginErrorFlag = true;
+      });
+      return;
+    }
+
+    widget.controller.updateLoginFlag();
+    Navigator.restorablePopAndPushNamed(context, SampleItemListView.routeName);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,6 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 100,
                 ),
                 const SizedBox(height: 16),
+                // 6 digit id
                 TextField(
                   controller: _userIDController,
                   decoration: InputDecoration(
@@ -78,6 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 if (_users.isNotEmpty) ...[
+                  // Selected user
                   DropdownButtonFormField<UserItem>(
                     items: _users.map<DropdownMenuItem<UserItem>>(
                       (UserItem user) {
@@ -93,6 +111,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       labelText: 'Name',
                     ),
                     onChanged: (UserItem? user) {},
+                  ),
+                  const SizedBox(height: 16),
+                  // Password
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      border: const OutlineInputBorder(),
+                      errorText: _loginErrorFlag ? 'Invalid Password' : null,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  OverflowBar(
+                    alignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      ElevatedButton.icon(
+                        onPressed: _loginUser,
+                        label: const Text('Login'),
+                        icon: const Icon(Icons.login),
+                      )
+                    ],
                   )
                 ],
               ],
