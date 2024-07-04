@@ -85,24 +85,24 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _loginUser() async {
     final String password = _passwordController.text;
     final Response response = await post(
-      Uri.parse('https://ytygroup.app/claim-api/api/getEmployee.php'),
+      Uri.parse('https://ytygroup.app/claim-api/api/signIn.php'),
       headers: {
         'Authorization':
             'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJZVFkiLCJuYW1lIjoiWVRZIENsYWltIFBvcnRhbCIsImFkbWluIjp0cnVlfQ.0rUmUcY752J_4dXYMr4Tfo1_BuZnXt7Uv4IpshDbwEI',
         'Content-Type': 'application/json'
       },
-      body: jsonEncode({'FULLID': '084999888', 'PASSWORD': password}),
+      body: jsonEncode({'FULLID': _selectedUser!.empid, 'PASSWORD': password}),
     );
 
     if (response.statusCode == 200) {
-      final String message = jsonDecode(response.body)[0]['message'];
+      final message = jsonDecode(response.body)[0]['data'];
       if (message == 'OK') {
         setState(() {
           _loginErrorFlag = false;
         });
         if (!mounted) return;
         widget.controller.updateLoginFlag();
-        Navigator.restorablePopAndPushNamed(
+        Navigator.popAndPushNamed(
           context,
           HomeScreen.routeName,
         );
