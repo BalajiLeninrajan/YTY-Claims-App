@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 
 import 'package:yty_claim_app/src/sample_feature/sample_item_list_view.dart';
 import 'package:yty_claim_app/src/controllers/settings_controller.dart';
+import 'package:yty_claim_app/src/screens/home_screen.dart';
 
 class UserItem {
   final String username;
@@ -82,17 +83,43 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _loginUser() {
-    final password = _passwordController.text;
-    if (password != '1234') {
-      setState(() {
-        _loginErrorFlag = true;
-      });
-      return;
-    }
+  Future<void> _loginUser() async {
+    final String password = _passwordController.text;
+    final Response response = await post(
+      Uri.parse('https://ytygroup.app/claim-api/api/getEmployee.php'),
+      headers: {
+        'Authorization':
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJZVFkiLCJuYW1lIjoiWVRZIENsYWltIFBvcnRhbCIsImFkbWluIjp0cnVlfQ.0rUmUcY752J_4dXYMr4Tfo1_BuZnXt7Uv4IpshDbwEI',
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode({'FULLID': '084999888', 'PASSWORD': password}),
+    );
 
-    widget.controller.updateLoginFlag();
-    Navigator.restorablePopAndPushNamed(context, SampleItemListView.routeName);
+    if (response.statusCode == 200) {
+      final String message = jsonDecode(response.body)[0]['message'];
+      if (message == 'OK') {
+        setState(() {
+          _loginErrorFlag = false;
+        });
+        if (!mounted) return;
+        widget.controller.updateLoginFlag();
+        Navigator.restorablePopAndPushNamed(
+          context,
+          HomeScreen.routeName,
+        );
+      } else {
+        setState(() {
+          _loginErrorFlag = true;
+        });
+      }
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to connect to server'),
+        ),
+      );
+    }
   }
 
   @override
