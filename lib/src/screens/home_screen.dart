@@ -28,6 +28,11 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: const Placeholder(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {},
+        label: const Text('Add Claim'),
+        icon: const Icon(Icons.add),
+      ),
     );
   }
 }
