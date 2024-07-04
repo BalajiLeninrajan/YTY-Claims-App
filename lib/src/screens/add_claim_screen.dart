@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:http/http.dart';
 import 'package:yty_claim_app/src/controllers/claim_item.dart';
+import 'package:yty_claim_app/src/screens/home_screen.dart';
 
 class AddClaimScreen extends StatefulWidget {
   const AddClaimScreen({super.key, required this.controller});
@@ -191,6 +192,51 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     });
   }
 
+  void _addTask() {
+    bool generalFlag = true;
+    if (_selectedDate == null) {
+      setState(() {
+        _dateErrorFlag = true;
+      });
+      generalFlag = false;
+    }
+
+    if (double.tryParse(_billAmountController.text) == null) {
+      setState(() {
+        _billAmountErrorFlag = true;
+      });
+      generalFlag = false;
+    }
+
+    if (double.tryParse(_taxController.text) == null) {
+      setState(() {
+        _taxErrorFlag = true;
+      });
+      generalFlag = false;
+    }
+
+    if (generalFlag) {
+      setState(() {
+        _dateErrorFlag = false;
+        _billAmountErrorFlag = false;
+        _taxErrorFlag = false;
+      });
+
+      widget.controller.addClaim(
+        ClaimItem(
+          claimType: _selectedClaimType!.code,
+          billDate: _selectedDate!,
+          description: _descriptionController.text,
+          billAmount: double.parse(_billAmountController.text),
+          tax: double.parse(_taxController.text),
+          currency: _selectedCurrency!,
+        ),
+      );
+
+      Navigator.popAndPushNamed(context, HomeScreen.routeName);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -359,7 +405,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                     alignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: (_currencies.isEmpty || _claimTypes.isEmpty)
+                            ? null
+                            : _addTask,
                         label: const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Text('Add Claim'),
