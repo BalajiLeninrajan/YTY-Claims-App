@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:yty_claim_app/src/controllers/claim_controller.dart';
+import 'package:yty_claim_app/src/screens/add_claim_screen.dart';
 import 'package:yty_claim_app/src/screens/settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.controller});
 
   static const routeName = '/';
+  final ClaimController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +32,9 @@ class HomeScreen extends StatelessWidget {
       ),
       body: const Placeholder(),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.restorablePushNamed(context, AddClaimScreen.routeName);
+        },
         label: const Text('Add Claim'),
         icon: const Icon(Icons.add),
       ),

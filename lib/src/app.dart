@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:yty_claim_app/src/controllers/claim_controller.dart';
+import 'package:yty_claim_app/src/screens/add_claim_screen.dart';
 
 import 'package:yty_claim_app/src/screens/home_screen.dart';
 import 'package:yty_claim_app/src/screens/login_screen.dart';
@@ -13,9 +15,11 @@ class MyApp extends StatelessWidget {
   const MyApp({
     super.key,
     required this.settingsController,
+    required this.claimController,
   });
 
   final SettingsController settingsController;
+  final ClaimController claimController;
 
   @override
   Widget build(BuildContext context) {
@@ -75,11 +79,13 @@ class MyApp extends StatelessWidget {
                     return SettingsScreen(controller: settingsController);
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
+                  case AddClaimScreen.routeName:
+                    return AddClaimScreen(controller: claimController);
                   case LoginScreen.routeName:
                     return LoginScreen(controller: settingsController);
                   case HomeScreen.routeName:
                   default:
-                    return const HomeScreen();
+                    return HomeScreen(controller: claimController);
                 }
               },
             );

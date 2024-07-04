@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:yty_claim_app/src/controllers/claim_controller.dart';
+import 'package:yty_claim_app/src/controllers/claim_service.dart';
 
 import 'src/app.dart';
 import 'src/controllers/settings_controller.dart';
@@ -16,20 +18,20 @@ class MyHttpOverrides extends HttpOverrides {
 }
 
 void main() async {
-  // Set up the SettingsController, which will glue user settings to multiple
-  // Flutter Widgets.
   final settingsController = SettingsController(SettingsService());
+  final claimController = ClaimController(ClaimService());
 
-  // Load the user's preferred theme while the splash screen is displayed.
-  // This prevents a sudden theme change when the app is first displayed.
   await settingsController.loadSettings();
+  await claimController.loadClaims();
 
   // http overide
   // TODO: REMOVE FOR PROD
   HttpOverrides.global = MyHttpOverrides();
 
-  // Run the app and pass in the SettingsController. The app listens to the
-  // SettingsController for changes, then passes it further down to the
-  // SettingsView.
-  runApp(MyApp(settingsController: settingsController));
+  runApp(
+    MyApp(
+      settingsController: settingsController,
+      claimController: claimController,
+    ),
+  );
 }
