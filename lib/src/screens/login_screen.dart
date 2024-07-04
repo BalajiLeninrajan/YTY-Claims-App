@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+
 import 'package:yty_claim_app/src/sample_feature/sample_item_list_view.dart';
 import 'package:yty_claim_app/src/controllers/settings_controller.dart';
 
@@ -20,32 +24,61 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _userIDController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final TextEditingController _userIDController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   List<UserItem> _users = [];
   UserItem? _selectedUser;
   bool _userIDErrorFlag = false;
   bool _loginErrorFlag = false;
 
-  void _fetchUsers() {
-    final userId = _userIDController.text;
-    if (userId == '100223') {
+  Future<void> _fetchUsers() async {
+    final String userId = _userIDController.text;
+    final Response response = await post(
+      Uri.parse('https://ytygroup.app/claim-api/api/getEmployee.php'),
+      headers: {
+        'Authorization':
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJZVFkiLCJuYW1lIjoiWVRZIENsYWltIFBvcnRhbCIsImFkbWluIjp0cnVlfQ.0rUmUcY752J_4dXYMr4Tfo1_BuZnXt7Uv4IpshDbwEI',
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode({'USERID': userId}),
+    );
+
+    _passwordController.clear();
+    setState(() {
+      _loginErrorFlag = false;
+    });
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
       setState(() {
-        _userIDErrorFlag = false;
-        _loginErrorFlag = false;
+        _users = responseData[0]['data']
+            .map<UserItem>(
+              (dynamic user) => UserItem(
+                username: user['EMPLOYEE_NAME'],
+                empid: user['EMP_ID'],
+              ),
+            )
+            .toList();
       });
-      _passwordController.clear();
-      _users = [
-        UserItem(username: 'Reyndo', empid: '1'),
-        UserItem(username: 'Balaji', empid: '2'),
-      ];
-      _selectedUser = _users.first;
+
+      if (_users.isEmpty) {
+        setState(() {
+          _userIDErrorFlag = true;
+          _selectedUser = null;
+        });
+      } else {
+        setState(() {
+          _selectedUser = _users.first;
+          _userIDErrorFlag = false;
+        });
+      }
     } else {
-      setState(() {
-        _userIDErrorFlag = true;
-      });
-      _users = <UserItem>[];
-      _selectedUser = null;
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to fetch users'),
+        ),
+      );
     }
   }
 
