@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
 import 'package:yty_claim_app/src/controllers/settings_controller.dart';
+import 'package:yty_claim_app/src/screens/home_screen.dart';
 
 class UserItem {
   final String username;
@@ -25,6 +26,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _userIDController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePasswordText = true;
   List<UserItem> _users = [];
   UserItem? _selectedUser;
   bool _userIDErrorFlag = false;
@@ -94,14 +96,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (response.statusCode == 200) {
-      final message = jsonDecode(response.body)[0]['data'];
+      final message = jsonDecode(response.body)[0]['message'];
       if (message == 'OK') {
         setState(() {
           _loginErrorFlag = false;
         });
         if (!mounted) return;
         widget.controller.updateLoginFlag();
-        Navigator.pop(context);
+        Navigator.popAndPushNamed(context, HomeScreen.routeName);
       } else {
         setState(() {
           _loginErrorFlag = true;
@@ -175,12 +177,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Password
                   TextField(
                     controller: _passwordController,
-                    obscureText: true,
+                    obscureText: _obscurePasswordText,
                     decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: const OutlineInputBorder(),
-                      errorText: _loginErrorFlag ? 'Invalid Password' : null,
-                    ),
+                        labelText: 'Password',
+                        border: const OutlineInputBorder(),
+                        errorText: _loginErrorFlag ? 'Invalid Password' : null,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _obscurePasswordText = !_obscurePasswordText;
+                            });
+                          },
+                          icon: Icon(
+                            _obscurePasswordText
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                        )),
                   ),
                   const SizedBox(height: 16),
                   OverflowBar(
