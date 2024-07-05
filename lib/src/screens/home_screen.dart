@@ -31,7 +31,15 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
-  Future<void> _sendClaims() async {}
+  Future<void> _sendClaims() async {
+    await widget.controller.clearClaims();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Submitted Claims'),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: <Widget>[
           IconButton(
             onPressed: widget.controller.claims.isEmpty ? null : _sendClaims,
-            icon: Icon(Icons.send),
+            icon: const Icon(Icons.send),
           ),
           IconButton(
             onPressed: () {

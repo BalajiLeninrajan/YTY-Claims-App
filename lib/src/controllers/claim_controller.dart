@@ -28,4 +28,10 @@ class ClaimController with ChangeNotifier {
     notifyListeners();
     await _claimService.updateClaims(_claims);
   }
+
+  Future<void> clearClaims() async {
+    _claims = [];
+    notifyListeners();
+    await _claimService.updateClaims(_claims);
+  }
 }

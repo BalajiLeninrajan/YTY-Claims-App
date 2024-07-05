@@ -49,3 +49,6 @@ app.*.map.json
 /web
 /macos
 /ios
+
+
+bearer_token.txt
