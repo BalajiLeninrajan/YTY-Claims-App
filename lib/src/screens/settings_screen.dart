@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yty_claim_app/src/sample_feature/sample_item_list_view.dart';
+import 'package:yty_claim_app/src/screens/login_screen.dart';
 
 import '../controllers/settings_controller.dart';
 
@@ -56,7 +56,7 @@ class SettingsScreen extends StatelessWidget {
                   controller.updateLoginFlag();
                   Navigator.restorablePopAndPushNamed(
                     context,
-                    SampleItemListView.routeName,
+                    LoginScreen.routeName,
                   );
                 },
                 label: const Text('Logout'),

@@ -2,33 +2,39 @@ import 'dart:convert';
 import 'dart:io';
 
 class ClaimItem {
-  final String claimType;
+  final String claimTypeId;
+  final String claimTypeName;
   final DateTime billDate;
   final String description;
   final double billAmount;
   final double tax;
   final String currency;
   final File? attachment;
+  final double total;
 
   ClaimItem({
-    required this.claimType,
+    required this.claimTypeId,
+    required this.claimTypeName,
     required this.billDate,
     required this.description,
     required this.billAmount,
     required this.tax,
     required this.currency,
     this.attachment,
+    required this.total,
   });
 
   Map<String, dynamic> _toJson() {
     return {
-      'claimType': claimType,
+      'claimType': claimTypeId,
+      'claimTypeName': claimTypeName,
       'billDate': billDate.toIso8601String(),
       'description': description,
       'billAmount': billAmount,
       'tax': tax,
       'currency': currency,
       'attachment': attachment?.path,
+      'total': total,
     };
   }
 
@@ -50,22 +56,24 @@ class ClaimItem {
       }
     }
     return ClaimItem(
-      claimType: json['claimType'],
+      claimTypeId: json['claimType'],
+      claimTypeName: json['claimTypeName'],
       billDate: DateTime.parse(json['billDate']),
       description: json['description'],
       billAmount: json['billAmount'],
       tax: json['tax'],
       currency: json['currency'],
       attachment: attachment,
+      total: json['total'],
     );
   }
 
   static Future<List<ClaimItem>> jsonDecode(String claims) async {
-    final List<Map<String, dynamic>> jsonList = json.decode(claims);
+    final jsonList = json.decode(claims);
     return Future.wait(
       jsonList
           .map<Future<ClaimItem>>(
-            (Map<String, dynamic> json) => ClaimItem._fromJson(json),
+            (dynamic json) => ClaimItem._fromJson(json),
           )
           .toList(),
     );

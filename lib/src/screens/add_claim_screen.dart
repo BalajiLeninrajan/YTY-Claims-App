@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:http/http.dart';
 import 'package:yty_claim_app/src/controllers/claim_item.dart';
-import 'package:yty_claim_app/src/screens/home_screen.dart';
 
 class AddClaimScreen extends StatefulWidget {
   const AddClaimScreen({super.key, required this.controller});
@@ -171,6 +170,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
       final responseData = jsonDecode(response.body);
       setState(() {
         _exchangeRate = responseData[0]['data'][0]['RATE'];
+        _getTotal();
       });
     } else {
       if (!mounted) return;
@@ -224,16 +224,18 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
 
       widget.controller.addClaim(
         ClaimItem(
-          claimType: _selectedClaimType!.code,
+          claimTypeId: _selectedClaimType!.code,
+          claimTypeName: _selectedClaimType!.name,
           billDate: _selectedDate!,
           description: _descriptionController.text,
           billAmount: double.parse(_billAmountController.text),
           tax: double.parse(_taxController.text),
           currency: _selectedCurrency!,
+          total: _total,
         ),
       );
 
-      Navigator.popAndPushNamed(context, HomeScreen.routeName);
+      Navigator.pop(context);
     }
   }
 
