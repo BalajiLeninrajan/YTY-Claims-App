@@ -6,7 +6,6 @@ import 'package:yty_claim_app/src/screens/add_claim_screen.dart';
 
 import 'package:yty_claim_app/src/screens/home_screen.dart';
 import 'package:yty_claim_app/src/screens/login_screen.dart';
-import 'package:yty_claim_app/src/sample_feature/sample_item_details_view.dart';
 import 'package:yty_claim_app/src/controllers/settings_controller.dart';
 import 'package:yty_claim_app/src/screens/settings_screen.dart';
 
@@ -77,8 +76,6 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsScreen.routeName:
                     return SettingsScreen(controller: settingsController);
-                  case SampleItemDetailsView.routeName:
-                    return const SampleItemDetailsView();
                   case AddClaimScreen.routeName:
                     return AddClaimScreen(controller: claimController);
                   case LoginScreen.routeName:
