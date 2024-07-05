@@ -31,6 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
+  Future<void> _sendClaims() async {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,9 +42,9 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 32,
         ),
         actions: <Widget>[
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.send),
+          const IconButton(
+            onPressed: null,
+            icon: Icon(Icons.send),
           ),
           IconButton(
             onPressed: () {

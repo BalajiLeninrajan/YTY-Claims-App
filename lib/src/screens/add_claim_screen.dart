@@ -398,7 +398,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                     label: Text(
                       _attachment == null
                           ? 'Attach'
-                          : '...${_attachment!.path.substring(_attachment!.path.length - 12)}',
+                          : _attachment!.path.length > 15
+                              ? ('...${_attachment!.path.substring(_attachment!.path.length - 12)}')
+                              : _attachment!.path,
                     ),
                     icon: const Icon(Icons.attach_file),
                   ),

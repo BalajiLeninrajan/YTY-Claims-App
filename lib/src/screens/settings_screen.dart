@@ -54,7 +54,7 @@ class SettingsScreen extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: () {
                   controller.updateLoginFlag();
-                  Navigator.restorablePopAndPushNamed(
+                  Navigator.popAndPushNamed(
                     context,
                     LoginScreen.routeName,
                   );

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
 import 'package:yty_claim_app/src/controllers/settings_controller.dart';
-import 'package:yty_claim_app/src/screens/home_screen.dart';
 
 class UserItem {
   final String username;
@@ -102,10 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
         });
         if (!mounted) return;
         widget.controller.updateLoginFlag();
-        Navigator.popAndPushNamed(
-          context,
-          HomeScreen.routeName,
-        );
+        Navigator.pop(context);
       } else {
         setState(() {
           _loginErrorFlag = true;
