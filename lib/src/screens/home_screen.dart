@@ -42,8 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 32,
         ),
         actions: <Widget>[
-          const IconButton(
-            onPressed: null,
+          IconButton(
+            onPressed: widget.controller.claims.isEmpty ? null : _sendClaims,
             icon: Icon(Icons.send),
           ),
           IconButton(
