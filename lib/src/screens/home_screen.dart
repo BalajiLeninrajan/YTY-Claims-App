@@ -31,6 +31,30 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
+  void _showConfirmDialog(BuildContext context, ClaimItem claim) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Delete'),
+            content: const Text('Are you sure you want to delete the claim?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  widget.controller.removeClaim(claim);
+                  Navigator.pop(context);
+                },
+                child: const Text('Delete'),
+              ),
+            ],
+          );
+        });
+  }
+
   Future<void> _sendClaims() async {
     await widget.controller.clearClaims();
     if (!mounted) return;
@@ -80,9 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     trailing: IconButton(
-                      onPressed: () {
-                        widget.controller.removeClaim(claim);
-                      },
+                      onPressed: () => _showConfirmDialog(context, claim),
                       icon: const Icon(Icons.delete),
                     ),
                   ),
