@@ -23,13 +23,18 @@ class SettingsService {
     prefs.setString(prefKeyThemeMode, theme.name);
   }
 
-  Future<bool> loginFlag() async {
+  Future<String> loginFlag() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(prefKeyLoginFlag) ?? false;
+    return prefs.getString(prefKeyLoginFlag) ?? '';
   }
 
-  Future<void> updateLoginFlag(bool flag) async {
+  Future<void> updateLoginFlag(String id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool(prefKeyLoginFlag, flag);
+    prefs.setString(prefKeyLoginFlag, id);
+  }
+
+  Future<void> removeLoginFlag() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove(prefKeyLoginFlag);
   }
 }

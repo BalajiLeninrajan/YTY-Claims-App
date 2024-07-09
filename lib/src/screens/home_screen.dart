@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:yty_claim_app/src/controllers/claim_item.dart';
@@ -63,6 +66,11 @@ class _HomeScreenState extends State<HomeScreen> {
         content: Text('Submitted Claims'),
       ),
     );
+  }
+
+  Future<String> getBase64(File file) async {
+    final uInt8List = await file.readAsBytes();
+    return base64Encode(uInt8List);
   }
 
   @override

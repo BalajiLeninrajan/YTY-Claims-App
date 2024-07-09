@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute<void>(
               settings: routeSettings,
               builder: (BuildContext context) {
-                if (!settingsController.loginFlag) {
+                if (settingsController.loginFlag.isEmpty) {
                   return LoginScreen(controller: settingsController);
                 }
                 switch (routeSettings.name) {

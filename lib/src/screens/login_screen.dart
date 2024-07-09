@@ -84,6 +84,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _loginUser() async {
+    setState(() {
+      _loginErrorFlag = false;
+    });
+
     final String password = _passwordController.text;
     final Response response = await post(
       Uri.parse('https://ytygroup.app/claim-api/api/signIn.php'),
@@ -98,11 +102,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode == 200) {
       final message = jsonDecode(response.body)[0]['message'];
       if (message == 'OK') {
-        setState(() {
-          _loginErrorFlag = false;
-        });
         if (!mounted) return;
-        widget.controller.updateLoginFlag();
+        widget.controller.updateLoginFlag(_selectedUser!.empid);
         Navigator.popAndPushNamed(context, HomeScreen.routeName);
       } else {
         setState(() {

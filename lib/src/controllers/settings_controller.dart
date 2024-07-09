@@ -49,13 +49,20 @@ class SettingsController with ChangeNotifier {
     await _settingsService.updateThemeMode(newThemeMode);
   }
 
-  late bool _loginFlag;
-  bool get loginFlag => _loginFlag;
+  late String _loginFlag;
+  String get loginFlag => _loginFlag;
 
-  Future<void> updateLoginFlag() async {
-    _loginFlag = !_loginFlag;
+  Future<void> updateLoginFlag(String id) async {
+    _loginFlag = id;
     notifyListeners();
 
     await _settingsService.updateLoginFlag(_loginFlag);
+  }
+
+  Future<void> logout() async {
+    _loginFlag = "";
+    notifyListeners();
+
+    await _settingsService.removeLoginFlag();
   }
 }

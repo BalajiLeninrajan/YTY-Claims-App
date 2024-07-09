@@ -53,7 +53,7 @@ class SettingsScreen extends StatelessWidget {
               const SizedBox(height: 32),
               ElevatedButton.icon(
                 onPressed: () {
-                  controller.updateLoginFlag();
+                  controller.logout();
                   Navigator.popAndPushNamed(
                     context,
                     LoginScreen.routeName,
