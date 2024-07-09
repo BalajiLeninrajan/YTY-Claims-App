@@ -82,7 +82,10 @@ class MyApp extends StatelessWidget {
                     return LoginScreen(controller: settingsController);
                   case HomeScreen.routeName:
                   default:
-                    return HomeScreen(controller: claimController);
+                    return HomeScreen(
+                      claimController: claimController,
+                      settingsController: settingsController,
+                    );
                 }
               },
             );

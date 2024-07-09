@@ -229,7 +229,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
           billAmount: double.parse(_billAmountController.text),
           tax: double.parse(_taxController.text),
           currency: _selectedCurrency!,
+          exchangeRate: _exchangeRate!,
           total: _total,
+          attachment: _attachment,
         ),
       );
 
@@ -299,6 +301,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                       border: OutlineInputBorder(),
                       labelText: 'Description',
                     ),
+                    maxLength: 500,
                   ),
                   const SizedBox(height: 24),
                   // Currency

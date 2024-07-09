@@ -9,6 +9,7 @@ class ClaimItem {
   final double billAmount;
   final double tax;
   final String currency;
+  final String exchangeRate;
   final File? attachment;
   final double total;
 
@@ -20,6 +21,7 @@ class ClaimItem {
     required this.billAmount,
     required this.tax,
     required this.currency,
+    required this.exchangeRate,
     this.attachment,
     required this.total,
   });
@@ -33,6 +35,7 @@ class ClaimItem {
       'billAmount': billAmount,
       'tax': tax,
       'currency': currency,
+      'exchangeRate': exchangeRate,
       'attachment': attachment?.path,
       'total': total,
     };
@@ -63,6 +66,7 @@ class ClaimItem {
       billAmount: json['billAmount'],
       tax: json['tax'],
       currency: json['currency'],
+      exchangeRate: json['exchangeRate'],
       attachment: attachment,
       total: json['total'],
     );
