@@ -50,5 +50,4 @@ app.*.map.json
 /macos
 /ios
 
-
-bearer_token.txt
+/lib/bearer_token.dart

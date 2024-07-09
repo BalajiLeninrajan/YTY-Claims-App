@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:yty_claim_app/bearer_token.dart';
 
 import 'package:yty_claim_app/src/controllers/settings_controller.dart';
 import 'package:yty_claim_app/src/screens/home_screen.dart';
@@ -37,8 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final Response response = await post(
       Uri.parse('https://ytygroup.app/claim-api/api/getEmployee.php'),
       headers: {
-        'Authorization':
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJZVFkiLCJuYW1lIjoiWVRZIENsYWltIFBvcnRhbCIsImFkbWluIjp0cnVlfQ.0rUmUcY752J_4dXYMr4Tfo1_BuZnXt7Uv4IpshDbwEI',
+        'Authorization': bearerToken,
         'Content-Type': 'application/json'
       },
       body: jsonEncode({'USERID': userId}),
@@ -92,8 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final Response response = await post(
       Uri.parse('https://ytygroup.app/claim-api/api/signIn.php'),
       headers: {
-        'Authorization':
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJZVFkiLCJuYW1lIjoiWVRZIENsYWltIFBvcnRhbCIsImFkbWluIjp0cnVlfQ.0rUmUcY752J_4dXYMr4Tfo1_BuZnXt7Uv4IpshDbwEI',
+        'Authorization': bearerToken,
         'Content-Type': 'application/json'
       },
       body: jsonEncode({'FULLID': _selectedUser!.empid, 'PASSWORD': password}),

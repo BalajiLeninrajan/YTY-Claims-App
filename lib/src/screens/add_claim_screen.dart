@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:yty_claim_app/bearer_token.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:http/http.dart';
 import 'package:yty_claim_app/src/controllers/claim_item.dart';
@@ -90,8 +91,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     final Response response = await post(
       Uri.parse('https://ytygroup.app/claim-api/api/getClaimList.php'),
       headers: {
-        'Authorization':
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJZVFkiLCJuYW1lIjoiWVRZIENsYWltIFBvcnRhbCIsImFkbWluIjp0cnVlfQ.0rUmUcY752J_4dXYMr4Tfo1_BuZnXt7Uv4IpshDbwEI',
+        'Authorization': bearerToken,
         'Content-Type': 'application/json'
       },
       body: jsonEncode({'CLAIMGROUP': 'YTY_CL_A'}),
@@ -125,8 +125,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     final Response response = await post(
       Uri.parse('https://ytygroup.app/claim-api/api/getCurrencyList.php'),
       headers: {
-        'Authorization':
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJZVFkiLCJuYW1lIjoiWVRZIENsYWltIFBvcnRhbCIsImFkbWluIjp0cnVlfQ.0rUmUcY752J_4dXYMr4Tfo1_BuZnXt7Uv4IpshDbwEI',
+        'Authorization': bearerToken,
         'Content-Type': 'application/json'
       },
     );
@@ -155,8 +154,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     final Response response = await post(
       Uri.parse('https://ytygroup.app/claim-api/api/getExchangeRate.php'),
       headers: {
-        'Authorization':
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJZVFkiLCJuYW1lIjoiWVRZIENsYWltIFBvcnRhbCIsImFkbWluIjp0cnVlfQ.0rUmUcY752J_4dXYMr4Tfo1_BuZnXt7Uv4IpshDbwEI',
+        'Authorization': bearerToken,
         'Content-Type': 'application/json'
       },
       body: jsonEncode(
