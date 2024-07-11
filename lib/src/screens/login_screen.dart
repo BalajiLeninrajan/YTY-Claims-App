@@ -127,87 +127,90 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Container(
             width: 768,
             padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/images/YTY.png',
-                  height: 100,
-                ),
-                const SizedBox(height: 16),
-                // 6 digit id
-                TextField(
-                  controller: _userIDController,
-                  decoration: InputDecoration(
-                    labelText: '6-digit ID',
-                    border: const OutlineInputBorder(),
-                    errorText: _userIDErrorFlag ? 'Invalid ID' : null,
-                    suffixIcon: TextButton.icon(
-                      onPressed: _fetchUsers,
-                      label: const Text('Fetch Users'),
-                      icon: const Icon(Icons.get_app),
-                    ),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 16),
-                if (_users.isNotEmpty) ...[
-                  // Selected user
-                  DropdownButtonFormField<UserItem>(
-                    items: _users.map<DropdownMenuItem<UserItem>>(
-                      (UserItem user) {
-                        return DropdownMenuItem(
-                          value: user,
-                          child: Text(user.username),
-                        );
-                      },
-                    ).toList(),
-                    value: _selectedUser,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Name',
-                    ),
-                    onChanged: (UserItem? user) {
-                      setState(() {
-                        _selectedUser = user;
-                      });
-                    },
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/YTY.png',
+                    height: 100,
                   ),
                   const SizedBox(height: 16),
-                  // Password
+                  // 6 digit id
                   TextField(
-                    controller: _passwordController,
-                    obscureText: _obscurePasswordText,
+                    controller: _userIDController,
                     decoration: InputDecoration(
-                        labelText: 'Password',
-                        border: const OutlineInputBorder(),
-                        errorText: _loginErrorFlag ? 'Invalid Password' : null,
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _obscurePasswordText = !_obscurePasswordText;
-                            });
-                          },
-                          icon: Icon(
-                            _obscurePasswordText
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                        )),
+                      labelText: '6-digit ID',
+                      border: const OutlineInputBorder(),
+                      errorText: _userIDErrorFlag ? 'Invalid ID' : null,
+                      suffixIcon: TextButton.icon(
+                        onPressed: _fetchUsers,
+                        label: const Text('Fetch Users'),
+                        icon: const Icon(Icons.get_app),
+                      ),
+                    ),
+                    keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 16),
-                  OverflowBar(
-                    alignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      ElevatedButton.icon(
-                        onPressed: _loginUser,
-                        label: const Text('Login'),
-                        icon: const Icon(Icons.login),
-                      )
-                    ],
-                  )
+                  if (_users.isNotEmpty) ...[
+                    // Selected user
+                    DropdownButtonFormField<UserItem>(
+                      items: _users.map<DropdownMenuItem<UserItem>>(
+                        (UserItem user) {
+                          return DropdownMenuItem(
+                            value: user,
+                            child: Text(user.username),
+                          );
+                        },
+                      ).toList(),
+                      value: _selectedUser,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Name',
+                      ),
+                      onChanged: (UserItem? user) {
+                        setState(() {
+                          _selectedUser = user;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    // Password
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: _obscurePasswordText,
+                      decoration: InputDecoration(
+                          labelText: 'Password',
+                          border: const OutlineInputBorder(),
+                          errorText:
+                              _loginErrorFlag ? 'Invalid Password' : null,
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _obscurePasswordText = !_obscurePasswordText;
+                              });
+                            },
+                            icon: Icon(
+                              _obscurePasswordText
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                          )),
+                    ),
+                    const SizedBox(height: 16),
+                    OverflowBar(
+                      alignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        ElevatedButton.icon(
+                          onPressed: _loginUser,
+                          label: const Text('Login'),
+                          icon: const Icon(Icons.login),
+                        )
+                      ],
+                    )
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
