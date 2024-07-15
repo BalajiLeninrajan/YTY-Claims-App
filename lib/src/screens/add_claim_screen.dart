@@ -43,7 +43,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
   final TextEditingController _billAmountController = TextEditingController();
   bool _billAmountErrorFlag = false;
 
-  final TextEditingController _taxController = TextEditingController();
+  final TextEditingController _taxController = TextEditingController.fromValue(
+    const TextEditingValue(text: '0'),
+  );
   bool _taxErrorFlag = false;
 
   double _total = 0;
