@@ -233,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             if (_isLoading)
               Container(
-                color: Colors.black.withOpacity(0.5),
+                color: Theme.of(context).dialogBackgroundColor.withOpacity(0.5),
                 child: const Center(
                   child: RefreshProgressIndicator(),
                 ),

@@ -26,6 +26,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _isLoading = false;
+
   @override
   void initState() {
     widget.claimController.addListener(_updateState);
@@ -67,6 +69,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _sendClaims() async {
+    setState(() {
+      _isLoading = true;
+    });
     for (ClaimItem claim in widget.claimController.claims) {
       final Response response = await post(
         Uri.parse('https://ytygroup.app/claim-api/api/saveClaim.php'),
@@ -91,6 +96,10 @@ class _HomeScreenState extends State<HomeScreen> {
           'Attachment': await getBase64(claim.attachment),
         }),
       );
+
+      setState(() {
+        _isLoading = false;
+      });
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
@@ -150,28 +159,41 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: widget.claimController.claims.isEmpty
           ? const Center(child: Text('No Claims Added'))
-          : ListView.builder(
-              itemCount: widget.claimController.claims.length,
-              itemBuilder: (BuildContext context, int index) {
-                ClaimItem claim = widget.claimController.claims[index];
-                return Card(
-                  child: ListTile(
-                    title: Text(
-                      '${claim.claimTypeName} | MYR ${claim.total.toStringAsFixed(2)}',
-                    ),
-                    subtitle: Flexible(
-                      child: Text(
-                        claim.description,
-                        overflow: TextOverflow.ellipsis,
+          : Stack(
+              children: [
+                ListView.builder(
+                  itemCount: widget.claimController.claims.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    ClaimItem claim = widget.claimController.claims[index];
+                    return Card(
+                      child: ListTile(
+                        title: Text(
+                          '${claim.claimTypeName} | MYR ${claim.total.toStringAsFixed(2)}',
+                        ),
+                        subtitle: Flexible(
+                          child: Text(
+                            claim.description,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        trailing: IconButton(
+                          onPressed: () => _showConfirmDialog(context, claim),
+                          icon: const Icon(Icons.delete),
+                        ),
                       ),
+                    );
+                  },
+                ),
+                if (_isLoading)
+                  Container(
+                    color: Theme.of(context)
+                        .dialogBackgroundColor
+                        .withOpacity(0.5),
+                    child: const Center(
+                      child: RefreshProgressIndicator(),
                     ),
-                    trailing: IconButton(
-                      onPressed: () => _showConfirmDialog(context, claim),
-                      icon: const Icon(Icons.delete),
-                    ),
-                  ),
-                );
-              },
+                  )
+              ],
             ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
