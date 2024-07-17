@@ -158,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: widget.claimController.claims.isEmpty
-          ? const Center(child: Text('No Claims Added'))
+          ? const Center(child: Text('No Failed Claims'))
           : Stack(
               children: [
                 ListView.builder(

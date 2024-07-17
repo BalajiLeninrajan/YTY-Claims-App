@@ -87,7 +87,10 @@ class MyApp extends StatelessWidget {
                       case SettingsScreen.routeName:
                         return SettingsScreen(controller: settingsController);
                       case AddClaimScreen.routeName:
-                        return AddClaimScreen(controller: claimController);
+                        return AddClaimScreen(
+                          controller: claimController,
+                          settingsController: settingsController,
+                        );
                       case LoginScreen.routeName:
                         return LoginScreen(controller: settingsController);
                       case HomeScreen.routeName:
