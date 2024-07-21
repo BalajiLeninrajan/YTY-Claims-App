@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final message = jsonDecode(response.body)[0]['message'];
       if (message == 'OK') {
         widget.claimController.loadClaimTypesFromAPI(
-          jsonDecode(response.body)[0]['data']['CLAIM_GROUP'],
+          jsonDecode(response.body)[0]['data'][0]['CLAIM_GROUP'],
         );
         if (!mounted) return;
         widget.controller.updateLoginFlag(_selectedUser!.empid);
