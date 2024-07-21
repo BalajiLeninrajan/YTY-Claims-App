@@ -119,9 +119,19 @@ class _LoginScreenState extends State<LoginScreen> {
         widget.claimController.loadClaimTypesFromAPI(
           jsonDecode(response.body)[0]['data'][0]['CLAIM_GROUP'],
         );
+        widget.claimController.loadCurrenciesFromAPI();
         if (!mounted) return;
-        widget.controller.updateLoginFlag(_selectedUser!.empid);
-        Navigator.popAndPushNamed(context, HomeScreen.routeName);
+        if (widget.claimController.claimTypes.isEmpty ||
+            widget.claimController.currencies.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to Login'),
+            ),
+          );
+        } else {
+          widget.controller.updateLoginFlag(_selectedUser!.empid);
+          Navigator.popAndPushNamed(context, HomeScreen.routeName);
+        }
       } else {
         setState(() {
           _loginErrorFlag = true;
