@@ -55,6 +55,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
 
   @override
   void initState() {
+    setState(() {
+      _selectedClaimType = widget.controller.claimTypes.first;
+    });
     _getCurrenciesSync();
     _billAmountController.addListener(_getTotal);
     _taxController.addListener(_getTotal);
