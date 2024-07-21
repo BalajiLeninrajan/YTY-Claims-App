@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:yty_claim_app/src/screens/login_screen.dart';
 
 import '../controllers/settings_controller.dart';
@@ -8,11 +9,16 @@ import '../controllers/settings_controller.dart';
 /// When a user changes a setting, the SettingsController is updated and
 /// Widgets that listen to the SettingsController are rebuilt.
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key, required this.controller});
+  const SettingsScreen({
+    super.key,
+    required this.controller,
+    required this.claimController,
+  });
 
   static const routeName = '/settings';
 
   final SettingsController controller;
+  final ClaimController claimController;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +60,8 @@ class SettingsScreen extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: () {
                   controller.logout();
+                  claimController.clearClaims();
+                  claimController.clearClaimTypes();
                   Navigator.popAndPushNamed(
                     context,
                     LoginScreen.routeName,

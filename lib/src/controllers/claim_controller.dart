@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:yty_claim_app/bearer_token.dart';
 import 'package:yty_claim_app/src/controllers/claim_item.dart';
 
 import 'package:yty_claim_app/src/controllers/claim_service.dart';
+import 'package:yty_claim_app/src/controllers/claim_type.dart';
 
 class ClaimController with ChangeNotifier {
   ClaimController(this._claimService);
@@ -33,5 +38,42 @@ class ClaimController with ChangeNotifier {
     _claims = [];
     notifyListeners();
     await _claimService.updateClaims(_claims);
+  }
+
+  late List<ClaimType> _claimTypes;
+
+  List<ClaimType> get claimTypes => _claimTypes;
+
+  Future<void> loadClaimTypesFromAPI(String claimGroup) async {
+    final Response response = await post(
+      Uri.parse('https://ytygroup.app/claim-api/api/getClaimList.php'),
+      headers: {
+        'Authorization': bearerToken,
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode({'CLAIMGROUP': claimGroup}),
+    );
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      _claimTypes = responseData[0]['data']
+          .map<ClaimType>(
+            (dynamic type) => ClaimType(
+              code: type['CLAIM_TYPE_CODE'],
+              name: type['CLAIM_TYPE_NAME'],
+            ),
+          )
+          .toList();
+    } else {
+      _claimTypes = [];
+    }
+
+    notifyListeners();
+    _claimService.updateClaimTypes(_claimTypes);
+  }
+
+  Future<void> clearClaimTypes() async {
+    _claimTypes = [];
+    notifyListeners();
+    _claimService.updateClaimTypes([]);
   }
 }

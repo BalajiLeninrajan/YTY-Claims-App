@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:yty_claim_app/bearer_token.dart';
+import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 
 import 'package:yty_claim_app/src/controllers/settings_controller.dart';
 import 'package:yty_claim_app/src/screens/home_screen.dart';
@@ -15,10 +16,15 @@ class UserItem {
 }
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.controller});
+  const LoginScreen({
+    super.key,
+    required this.controller,
+    required this.claimController,
+  });
 
   static const routeName = '/login';
   final SettingsController controller;
+  final ClaimController claimController;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -110,6 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode == 200) {
       final message = jsonDecode(response.body)[0]['message'];
       if (message == 'OK') {
+        widget.claimController.loadClaimTypesFromAPI(
+          jsonDecode(response.body)[0]['data']['CLAIM_GROUP'],
+        );
         if (!mounted) return;
         widget.controller.updateLoginFlag(_selectedUser!.empid);
         Navigator.popAndPushNamed(context, HomeScreen.routeName);

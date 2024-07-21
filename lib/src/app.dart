@@ -81,18 +81,27 @@ class MyApp extends StatelessWidget {
                   settings: routeSettings,
                   builder: (BuildContext context) {
                     if (settingsController.loginFlag.isEmpty) {
-                      return LoginScreen(controller: settingsController);
+                      return LoginScreen(
+                        controller: settingsController,
+                        claimController: claimController,
+                      );
                     }
                     switch (routeSettings.name) {
                       case SettingsScreen.routeName:
-                        return SettingsScreen(controller: settingsController);
+                        return SettingsScreen(
+                          controller: settingsController,
+                          claimController: claimController,
+                        );
                       case AddClaimScreen.routeName:
                         return AddClaimScreen(
                           controller: claimController,
                           settingsController: settingsController,
                         );
                       case LoginScreen.routeName:
-                        return LoginScreen(controller: settingsController);
+                        return LoginScreen(
+                          controller: settingsController,
+                          claimController: claimController,
+                        );
                       case HomeScreen.routeName:
                       default:
                         return HomeScreen(

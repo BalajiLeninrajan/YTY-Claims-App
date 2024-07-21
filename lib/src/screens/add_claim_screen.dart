@@ -8,6 +8,7 @@ import 'package:yty_claim_app/bearer_token.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:http/http.dart';
 import 'package:yty_claim_app/src/controllers/claim_item.dart';
+import 'package:yty_claim_app/src/controllers/claim_type.dart';
 import 'package:yty_claim_app/src/controllers/settings_controller.dart';
 
 class AddClaimScreen extends StatefulWidget {
@@ -25,15 +26,7 @@ class AddClaimScreen extends StatefulWidget {
   State<AddClaimScreen> createState() => _AddClaimScreenState();
 }
 
-class ClaimType {
-  final String code;
-  final String name;
-
-  ClaimType({required this.code, required this.name});
-}
-
 class _AddClaimScreenState extends State<AddClaimScreen> {
-  List<ClaimType> _claimTypes = [];
   ClaimType? _selectedClaimType;
 
   DateTime? _selectedDate;
@@ -62,7 +55,6 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
 
   @override
   void initState() {
-    _getClaimTypesSync();
     _getCurrenciesSync();
     _billAmountController.addListener(_getTotal);
     _taxController.addListener(_getTotal);
@@ -92,40 +84,6 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
       setState(() {
         _selectedDate = newDate;
       });
-    }
-  }
-
-  void _getClaimTypesSync() => _getClaimTypes();
-
-  Future<void> _getClaimTypes() async {
-    final Response response = await post(
-      Uri.parse('https://ytygroup.app/claim-api/api/getClaimList.php'),
-      headers: {
-        'Authorization': bearerToken,
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode({'CLAIMGROUP': 'YTY_CL_A'}),
-    );
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      setState(() {
-        _claimTypes = responseData[0]['data']
-            .map<ClaimType>(
-              (dynamic type) => ClaimType(
-                code: type['CLAIM_TYPE_CODE'],
-                name: type['CLAIM_TYPE_NAME'],
-              ),
-            )
-            .toList();
-        _selectedClaimType = _claimTypes.first;
-      });
-    } else {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to reach server'),
-        ),
-      );
     }
   }
 
@@ -317,7 +275,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                       const SizedBox(height: 16),
                       // Claim type
                       DropdownButtonFormField<ClaimType>(
-                        items: _claimTypes
+                        items: widget.controller.claimTypes
                             .map<DropdownMenuItem<ClaimType>>(
                               (ClaimType claimType) =>
                                   DropdownMenuItem<ClaimType>(
@@ -335,7 +293,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                         decoration: InputDecoration(
                           border: const OutlineInputBorder(),
                           labelText: 'Claim Type',
-                          errorText: _claimTypes.isEmpty
+                          errorText: _selectedClaimType == null
                               ? 'Claim Type Required'
                               : null,
                         ),
@@ -476,10 +434,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                         alignment: MainAxisAlignment.end,
                         children: [
                           ElevatedButton.icon(
-                            onPressed:
-                                (_currencies.isEmpty || _claimTypes.isEmpty)
-                                    ? null
-                                    : _addTask,
+                            onPressed: _addTask,
                             label: const Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Text('Add Claim'),
