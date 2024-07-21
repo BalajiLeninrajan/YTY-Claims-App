@@ -8,6 +8,7 @@ class ClaimService {
   static const String prefKeyLoginFlag = 'LoginFlag';
   static const String prefKeyClaims = 'Claims';
   static const String prefKeyClaimTypes = 'Claim Types';
+  static const String prefKeyCurrencies = 'Currencies';
 
   Future<List<ClaimItem>> getClaims() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -37,5 +38,15 @@ class ClaimService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String encodedData = ClaimType.jsonEncode(types);
     await prefs.setString(prefKeyClaimTypes, encodedData);
+  }
+
+  Future<List<String>> getCurrencies() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(prefKeyCurrencies) ?? [];
+  }
+
+  Future<void> updateCurrencies(List<String> currencies) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList(prefKeyCurrencies, currencies);
   }
 }

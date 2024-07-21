@@ -25,6 +25,8 @@ void main() async {
 
   await settingsController.loadSettings();
   await claimController.loadClaims();
+  await claimController.loadClaimTypes();
+  await claimController.loadCurrencies();
 
   // http overide
   // TODO: REMOVE FOR PROD

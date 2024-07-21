@@ -34,7 +34,6 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
 
   final TextEditingController _descriptionController = TextEditingController();
 
-  List<String> _currencies = [];
   String? _selectedCurrency = 'MYR';
 
   String? _exchangeRate = '1';
@@ -58,7 +57,6 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     setState(() {
       _selectedClaimType = widget.controller.claimTypes.first;
     });
-    _getCurrenciesSync();
     _billAmountController.addListener(_getTotal);
     _taxController.addListener(_getTotal);
     super.initState();
@@ -87,35 +85,6 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
       setState(() {
         _selectedDate = newDate;
       });
-    }
-  }
-
-  void _getCurrenciesSync() => _getCurrencies();
-
-  Future<void> _getCurrencies() async {
-    final Response response = await post(
-      Uri.parse('https://ytygroup.app/claim-api/api/getCurrencyList.php'),
-      headers: {
-        'Authorization': bearerToken,
-        'Content-Type': 'application/json'
-      },
-    );
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      setState(() {
-        _currencies = responseData[0]['data']
-            .map<String>(
-              (dynamic currency) => currency['FROM_CURRENCY'] as String,
-            )
-            .toList();
-      });
-    } else {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to reach server'),
-        ),
-      );
     }
   }
 
@@ -331,7 +300,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                       const SizedBox(height: 24),
                       // Currency
                       DropdownButtonFormField<String>(
-                        items: _currencies
+                        items: widget.controller.currencies
                             .map<DropdownMenuItem<String>>(
                               (String currency) => DropdownMenuItem<String>(
                                 value: currency,
@@ -350,8 +319,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                         decoration: InputDecoration(
                           border: const OutlineInputBorder(),
                           labelText: 'Currency',
-                          errorText:
-                              _currencies.isEmpty ? 'Currency Required' : null,
+                          errorText: _selectedCurrency == null
+                              ? 'Currency Required'
+                              : null,
                         ),
                       ),
                       const SizedBox(height: 16),

@@ -16,6 +16,12 @@ class ClaimController with ChangeNotifier {
   late List<ClaimItem> _claims;
   List<ClaimItem> get claims => _claims;
 
+  late List<ClaimType> _claimTypes;
+  List<ClaimType> get claimTypes => _claimTypes;
+
+  late List<String> _currencies;
+  List<String> get currencies => _currencies;
+
   Future<void> loadClaims() async {
     _claims = await _claimService.getClaims();
 
@@ -40,9 +46,10 @@ class ClaimController with ChangeNotifier {
     await _claimService.updateClaims(_claims);
   }
 
-  late List<ClaimType> _claimTypes;
-
-  List<ClaimType> get claimTypes => _claimTypes;
+  Future<void> loadClaimTypes() async {
+    _claimTypes = await _claimService.getClaimTypes();
+    notifyListeners();
+  }
 
   Future<void> loadClaimTypesFromAPI(String claimGroup) async {
     final Response response = await post(
@@ -64,7 +71,7 @@ class ClaimController with ChangeNotifier {
           )
           .toList();
     } else {
-      _claimTypes = [];
+      throw Exception();
     }
 
     notifyListeners();
@@ -73,6 +80,40 @@ class ClaimController with ChangeNotifier {
 
   Future<void> clearClaimTypes() async {
     _claimTypes = [];
+    notifyListeners();
+    _claimService.updateClaimTypes([]);
+  }
+
+  Future<void> loadCurrencies() async {
+    _currencies = await _claimService.getCurrencies();
+    notifyListeners();
+  }
+
+  Future<void> loadCurrenciesFromAPI() async {
+    final Response response = await post(
+      Uri.parse('https://ytygroup.app/claim-api/api/getCurrencyList.php'),
+      headers: {
+        'Authorization': bearerToken,
+        'Content-Type': 'application/json'
+      },
+    );
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      _currencies = responseData[0]['data']
+          .map<String>(
+            (dynamic currency) => currency['FROM_CURRENCY'] as String,
+          )
+          .toList();
+    } else {
+      throw Exception();
+    }
+
+    notifyListeners();
+    _claimService.updateCurrencies(_currencies);
+  }
+
+  Future<void> clearCurrencies() async {
+    _currencies = [];
     notifyListeners();
     _claimService.updateClaimTypes([]);
   }
