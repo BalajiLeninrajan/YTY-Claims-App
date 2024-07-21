@@ -6,7 +6,7 @@ class ClaimType {
 
   ClaimType({required this.code, required this.name});
 
-  Map<String, String> _toJson() {
+  Map<String, dynamic> _toJson() {
     return {
       'code': code,
       'name': name,
@@ -16,12 +16,12 @@ class ClaimType {
   static String jsonEncode(List<ClaimType> types) {
     return json.encode(
       types
-          .map<Map<String, String>>((ClaimType type) => type._toJson())
+          .map<Map<String, dynamic>>((ClaimType type) => type._toJson())
           .toList(),
     );
   }
 
-  static ClaimType _fromJson(Map<String, String> json) {
+  static ClaimType _fromJson(Map<String, dynamic> json) {
     return ClaimType(
       code: json['code']!,
       name: json['name']!,

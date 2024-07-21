@@ -45,14 +45,29 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
     final String userId = _userIDController.text;
-    final Response response = await post(
-      Uri.parse('https://ytygroup.app/claim-api/api/getEmployee.php'),
-      headers: {
-        'Authorization': bearerToken,
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode({'USERID': userId}),
-    );
+    late final Response response;
+    try {
+      response = await post(
+        Uri.parse('https://ytygroup.app/claim-api/api/getEmployee.php'),
+        headers: {
+          'Authorization': bearerToken,
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({'USERID': userId}),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Network Error'),
+          ),
+        );
+      }
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
 
     _passwordController.clear();
     setState(() {
@@ -104,14 +119,30 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     final String password = _passwordController.text;
-    final Response response = await post(
-      Uri.parse('https://ytygroup.app/claim-api/api/signIn.php'),
-      headers: {
-        'Authorization': bearerToken,
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode({'FULLID': _selectedUser!.empid, 'PASSWORD': password}),
-    );
+    late final Response response;
+    try {
+      response = await post(
+        Uri.parse('https://ytygroup.app/claim-api/api/signIn.php'),
+        headers: {
+          'Authorization': bearerToken,
+          'Content-Type': 'application/json'
+        },
+        body:
+            jsonEncode({'FULLID': _selectedUser!.empid, 'PASSWORD': password}),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('API Access Error'),
+          ),
+        );
+      }
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
 
     if (response.statusCode == 200) {
       final message = jsonDecode(response.body)[0]['message'];

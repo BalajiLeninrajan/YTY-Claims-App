@@ -62,6 +62,7 @@ class SettingsScreen extends StatelessWidget {
                   controller.logout();
                   claimController.clearClaims();
                   claimController.clearClaimTypes();
+                  claimController.clearCurrencies();
                   Navigator.popAndPushNamed(
                     context,
                     LoginScreen.routeName,
