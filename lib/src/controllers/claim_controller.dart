@@ -112,6 +112,33 @@ class ClaimController with ChangeNotifier {
     _claimService.updateCurrencies(_currencies);
   }
 
+  Future<String> getExchangeRate(String currency) async {
+    late final Response response;
+    try {
+      response = await post(
+        Uri.parse('https://ytygroup.app/claim-api/api/getExchangeRate.php'),
+        headers: {
+          'Authorization': bearerToken,
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode(
+          {
+            'DT': DateTime.now().toIso8601String().substring(0, 10),
+            'CURR': currency
+          },
+        ),
+      );
+    } catch (e) {
+      throw Exception();
+    }
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      return responseData[0]['data'][0]['RATE'];
+    }
+
+    return '1';
+  }
+
   Future<void> clearCurrencies() async {
     _currencies = [];
     notifyListeners();

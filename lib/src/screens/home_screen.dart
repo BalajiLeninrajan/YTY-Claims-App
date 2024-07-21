@@ -72,30 +72,49 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _isLoading = true;
     });
+    late final Response response;
     for (ClaimItem claim in widget.claimController.claims) {
-      final Response response = await post(
-        Uri.parse('https://ytygroup.app/claim-api/api/saveClaim.php'),
-        headers: {
-          'Authorization': bearerToken,
-          'Content-Type': 'application/json'
-        },
-        body: jsonEncode({
-          'EMP_ID': widget.settingsController.loginFlag,
-          'CLAIM_TYPE': claim.claimTypeId,
-          'CLAIM_DESCRIPTION': claim.description,
-          'CLAIM_BILL_AMT': claim.billAmount.toString(),
-          'CLAIM_TAX_AMT': claim.tax.toString(),
-          'CLAIM_CURRENCY_TYPE': claim.currency,
-          'CLAIM_EXCHANGE_RATE': claim.exchangeRate,
-          'TOTAL_CLAIM_AMT_MYR': claim.total.toString(),
-          'REMARK': '',
-          'CLAIM_FILE_EXTENSION': claim.attachment?.uri.pathSegments.last ?? '',
-          'KILOMETER': '',
-          'RATE_PER_KILOMETER': '',
-          'CLAIM_URL': '',
-          'Attachment': await getBase64(claim.attachment),
-        }),
-      );
+      try {
+        String exchangeRate =
+            await widget.claimController.getExchangeRate(claim.currency);
+        response = await post(
+          Uri.parse('https://ytygroup.app/claim-api/api/saveClaim.php'),
+          headers: {
+            'Authorization': bearerToken,
+            'Content-Type': 'application/json'
+          },
+          body: jsonEncode({
+            'EMP_ID': widget.settingsController.loginFlag,
+            'CLAIM_TYPE': claim.claimTypeId,
+            'CLAIM_DESCRIPTION': claim.description,
+            'CLAIM_BILL_AMT': claim.billAmount.toString(),
+            'CLAIM_TAX_AMT': claim.tax.toString(),
+            'CLAIM_CURRENCY_TYPE': claim.currency,
+            'CLAIM_EXCHANGE_RATE': exchangeRate,
+            'TOTAL_CLAIM_AMT_MYR':
+                (claim.total * double.parse(exchangeRate)).toString(),
+            'REMARK': '',
+            'CLAIM_FILE_EXTENSION':
+                claim.attachment?.uri.pathSegments.last ?? '',
+            'KILOMETER': '',
+            'RATE_PER_KILOMETER': '',
+            'CLAIM_URL': '',
+            'Attachment': await getBase64(claim.attachment),
+          }),
+        );
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Error Sending Claim'),
+            ),
+          );
+        }
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
 
       setState(() {
         _isLoading = false;
@@ -168,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     return Card(
                       child: ListTile(
                         title: Text(
-                          '${claim.claimTypeName} | MYR ${claim.total.toStringAsFixed(2)}',
+                          '${claim.claimTypeName} | ${claim.currency} ${claim.total.toStringAsFixed(2)}',
                         ),
                         subtitle: Flexible(
                           child: Text(

@@ -36,8 +36,6 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
 
   String? _selectedCurrency = 'MYR';
 
-  String? _exchangeRate = '1';
-
   final TextEditingController _billAmountController = TextEditingController();
   bool _billAmountErrorFlag = false;
 
@@ -88,45 +86,12 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     }
   }
 
-  void _getExchangeRateSync(String currency) => _getExchangeRate(currency);
-
-  Future<void> _getExchangeRate(String currency) async {
-    final Response response = await post(
-      Uri.parse('https://ytygroup.app/claim-api/api/getExchangeRate.php'),
-      headers: {
-        'Authorization': bearerToken,
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode(
-        {
-          'DT': DateTime.now().toIso8601String().substring(0, 10),
-          'CURR': currency
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      setState(() {
-        _exchangeRate = responseData[0]['data'][0]['RATE'];
-        _getTotal();
-      });
-    } else {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to reach server'),
-        ),
-      );
-    }
-  }
-
   void _getTotal() {
     final double billAmount = double.tryParse(_billAmountController.text) ?? 0;
     final double taxAmount = double.tryParse(_taxController.text) ?? 0;
-    final double exchangeRate = double.tryParse(_exchangeRate ?? '1') ?? 1;
 
     setState(() {
-      _total = (billAmount + taxAmount) * exchangeRate;
+      _total = (billAmount + taxAmount);
     });
   }
 
@@ -134,29 +99,44 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     setState(() {
       _isLoading = true;
     });
-    final Response response = await post(
-      Uri.parse('https://ytygroup.app/claim-api/api/saveClaim.php'),
-      headers: {
-        'Authorization': bearerToken,
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode({
-        'EMP_ID': widget.settingsController.loginFlag,
-        'CLAIM_TYPE': claim.claimTypeId,
-        'CLAIM_DESCRIPTION': claim.description,
-        'CLAIM_BILL_AMT': claim.billAmount.toString(),
-        'CLAIM_TAX_AMT': claim.tax.toString(),
-        'CLAIM_CURRENCY_TYPE': claim.currency,
-        'CLAIM_EXCHANGE_RATE': claim.exchangeRate,
-        'TOTAL_CLAIM_AMT_MYR': claim.total.toString(),
-        'REMARK': '',
-        'CLAIM_FILE_EXTENSION': claim.attachment?.uri.pathSegments.last ?? '',
-        'KILOMETER': '',
-        'RATE_PER_KILOMETER': '',
-        'CLAIM_URL': '',
-        'Attachment': await getBase64(claim.attachment),
-      }),
-    );
+    late final Response response;
+    try {
+      String exchangeRate =
+          await widget.controller.getExchangeRate(claim.currency);
+      response = await post(
+        Uri.parse('https://ytygroup.app/claim-api/api/saveClaim.php'),
+        headers: {
+          'Authorization': bearerToken,
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({
+          'EMP_ID': widget.settingsController.loginFlag,
+          'CLAIM_TYPE': claim.claimTypeId,
+          'CLAIM_DESCRIPTION': claim.description,
+          'CLAIM_BILL_AMT': claim.billAmount.toString(),
+          'CLAIM_TAX_AMT': claim.tax.toString(),
+          'CLAIM_CURRENCY_TYPE': claim.currency,
+          'CLAIM_EXCHANGE_RATE': exchangeRate,
+          'TOTAL_CLAIM_AMT_MYR':
+              (claim.total * double.parse(exchangeRate)).toString(),
+          'REMARK': '',
+          'CLAIM_FILE_EXTENSION': claim.attachment?.uri.pathSegments.last ?? '',
+          'KILOMETER': '',
+          'RATE_PER_KILOMETER': '',
+          'CLAIM_URL': '',
+          'Attachment': await getBase64(claim.attachment),
+        }),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to Save Claim, Saved to device'),
+          ),
+        );
+      }
+      response = Response('', 404);
+    }
     setState(() {
       _isLoading = false;
     });
@@ -207,7 +187,6 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
         billAmount: double.parse(_billAmountController.text),
         tax: double.parse(_taxController.text),
         currency: _selectedCurrency!,
-        exchangeRate: _exchangeRate!,
         total: _total,
         attachment: _attachment,
       );
@@ -312,9 +291,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                         onChanged: (String? currency) {
                           setState(() {
                             _selectedCurrency = currency;
-                            _exchangeRate = null;
                           });
-                          _getExchangeRateSync(currency ?? 'MYR');
                         },
                         decoration: InputDecoration(
                           border: const OutlineInputBorder(),
@@ -324,15 +301,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                               : null,
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      // exchange rate
-                      TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'Exchange Rate: ${_exchangeRate ?? 'Loading exchange rate'}',
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
                       // bill ammount
                       TextField(
                         controller: _billAmountController,
@@ -374,7 +343,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                       TextButton.icon(
                         onPressed: () {},
                         label: Text(
-                          'Total (MYR): ${_total.toStringAsFixed(2)}',
+                          'Total ($_selectedCurrency): ${_total.toStringAsFixed(2)}',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
