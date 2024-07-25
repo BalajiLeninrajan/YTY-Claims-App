@@ -20,8 +20,9 @@ class MyHttpOverrides extends HttpOverrides {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final settingsController = SettingsController(SettingsService());
-  final claimController = ClaimController(ClaimService());
+  final SettingsController settingsController =
+      SettingsController(SettingsService());
+  final ClaimController claimController = ClaimController(ClaimService());
 
   await settingsController.loadSettings();
   await claimController.loadClaims();

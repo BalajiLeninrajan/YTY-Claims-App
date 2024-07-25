@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:yty_claim_app/bearer_token.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:http/http.dart';
@@ -27,6 +29,8 @@ class AddClaimScreen extends StatefulWidget {
 }
 
 class _AddClaimScreenState extends State<AddClaimScreen> {
+  final ImagePicker _picker = ImagePicker();
+
   ClaimType? _selectedClaimType;
 
   DateTime? _selectedDate;
@@ -36,7 +40,10 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
 
   String? _selectedCurrency = 'MYR';
 
-  final TextEditingController _billAmountController = TextEditingController();
+  final TextEditingController _billAmountController =
+      TextEditingController.fromValue(
+    const TextEditingValue(text: '0'),
+  );
   bool _billAmountErrorFlag = false;
 
   final TextEditingController _taxController = TextEditingController.fromValue(
@@ -204,7 +211,59 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
         );
       }
 
-      if (mounted) Navigator.pop(context);
+      if (mounted) Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> getFilePicker() async {
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowMultiple: false);
+    if (result != null) {
+      setState(() {
+        _attachment = File(result.files.single.path!);
+      });
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error openning file picker'),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> getCameraOutput() async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    if (photo != null) {
+      setState(() {
+        _attachment = File(photo.path);
+      });
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error openning Camera'),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> getGalleryOutput() async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
+    if (photo != null) {
+      setState(() {
+        _attachment = File(photo.path);
+      });
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error openning Gallery'),
+          ),
+        );
+      }
     }
   }
 
@@ -353,12 +412,72 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                       const SizedBox(height: 16),
                       // attachment
                       FilledButton.tonalIcon(
-                        onPressed: () async {
-                          FilePickerResult? result = await FilePicker.platform
-                              .pickFiles(allowMultiple: false);
-                          if (result != null) {
+                        onPressed: () {
+                          if (_attachment == null) {
+                            showModalBottomSheet<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SizedBox(
+                                  height: 300,
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 32),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: 200,
+                                            child: FilledButton.icon(
+                                              label: const Text('From File'),
+                                              onPressed: () {
+                                                getFilePicker();
+                                                Navigator.pop(context);
+                                              },
+                                              icon: const Icon(
+                                                Icons.file_open,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 32),
+                                          SizedBox(
+                                            width: 200,
+                                            child: FilledButton.icon(
+                                              label: const Text('From Gallery'),
+                                              onPressed: () {
+                                                getGalleryOutput();
+                                                Navigator.pop(context);
+                                              },
+                                              icon: const Icon(
+                                                Icons.browse_gallery,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 32),
+                                          SizedBox(
+                                            width: 200,
+                                            child: FilledButton.icon(
+                                              label: const Text('From Camera'),
+                                              onPressed: () {
+                                                getCameraOutput();
+                                                Navigator.pop(context);
+                                              },
+                                              icon: const Icon(
+                                                Icons.camera_alt,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          } else {
                             setState(() {
-                              _attachment = File(result.files.single.path!);
+                              _attachment = null;
                             });
                           }
                         },
