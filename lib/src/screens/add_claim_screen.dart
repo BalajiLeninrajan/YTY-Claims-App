@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -216,17 +215,27 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
   }
 
   Future<void> getFilePicker() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(allowMultiple: false);
+    FilePickerResult? result;
+    try {
+      result = await FilePicker.platform.pickFiles(allowMultiple: false);
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+          ),
+        );
+      }
+    }
     if (result != null) {
       setState(() {
-        _attachment = File(result.files.single.path!);
+        _attachment = File(result!.files.single.path!);
       });
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Error openning file picker'),
+            content: Text('Error: no file selected'),
           ),
         );
       }
@@ -234,16 +243,27 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
   }
 
   Future<void> getCameraOutput() async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    XFile? photo;
+    try {
+      photo = await _picker.pickImage(source: ImageSource.camera);
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+          ),
+        );
+      }
+    }
     if (photo != null) {
       setState(() {
-        _attachment = File(photo.path);
+        _attachment = File(photo!.path);
       });
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Error openning Camera'),
+            content: Text('Error: No image taken'),
           ),
         );
       }
@@ -251,16 +271,27 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
   }
 
   Future<void> getGalleryOutput() async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
+    XFile? photo;
+    try {
+      photo = await _picker.pickImage(source: ImageSource.gallery);
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+          ),
+        );
+      }
+    }
     if (photo != null) {
       setState(() {
-        _attachment = File(photo.path);
+        _attachment = File(photo!.path);
       });
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Error openning Gallery'),
+            content: Text('Error: No image selected'),
           ),
         );
       }
