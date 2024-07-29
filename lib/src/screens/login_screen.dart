@@ -147,10 +147,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode == 200) {
       final message = jsonDecode(response.body)[0]['message'];
       if (message == 'OK') {
-        widget.claimController.loadClaimTypesFromAPI(
+        await widget.claimController.loadClaimTypesFromAPI(
           jsonDecode(response.body)[0]['data'][0]['CLAIM_GROUP'],
         );
-        widget.claimController.loadCurrenciesFromAPI();
+        await widget.claimController.loadCurrenciesFromAPI();
         if (!mounted) return;
         if (widget.claimController.claimTypes.isEmpty ||
             widget.claimController.currencies.isEmpty) {
