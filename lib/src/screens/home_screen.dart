@@ -86,6 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
           body: jsonEncode({
             'EMP_ID': widget.settingsController.loginFlag,
             'CLAIM_TYPE': claim.claimTypeId,
+            'DT': claim.billDate.toString(),
             'CLAIM_DESCRIPTION': claim.description,
             'CLAIM_BILL_AMT': claim.billAmount.toString(),
             'CLAIM_TAX_AMT': claim.tax.toString(),
