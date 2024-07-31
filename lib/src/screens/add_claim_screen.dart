@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:yty_claim_app/bearer_token.dart';
+import 'package:yty_claim_app/api_constants.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:http/http.dart';
 import 'package:yty_claim_app/src/controllers/claim_item.dart';
@@ -110,7 +110,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
       String exchangeRate =
           await widget.controller.getExchangeRate(claim.currency);
       response = await post(
-        Uri.parse('https://ytygroup.app/claim-api/api/saveClaim.php'),
+        Uri.parse('$apiUrl/saveClaim.php'),
         headers: {
           'Authorization': bearerToken,
           'Content-Type': 'application/json'

@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:yty_claim_app/bearer_token.dart';
+import 'package:yty_claim_app/api_constants.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:yty_claim_app/src/controllers/claim_item.dart';
 import 'package:yty_claim_app/src/controllers/settings_controller.dart';
@@ -78,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
         String exchangeRate =
             await widget.claimController.getExchangeRate(claim.currency);
         response = await post(
-          Uri.parse('https://ytygroup.app/claim-api/api/saveClaim.php'),
+          Uri.parse('$apiUrl/saveClaim.php'),
           headers: {
             'Authorization': bearerToken,
             'Content-Type': 'application/json'

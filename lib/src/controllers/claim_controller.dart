@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:yty_claim_app/bearer_token.dart';
+import 'package:yty_claim_app/api_constants.dart';
 import 'package:yty_claim_app/src/controllers/claim_item.dart';
 
 import 'package:yty_claim_app/src/controllers/claim_service.dart';
@@ -53,7 +53,7 @@ class ClaimController with ChangeNotifier {
 
   Future<void> loadClaimTypesFromAPI(String claimGroup) async {
     final Response response = await post(
-      Uri.parse('https://ytygroup.app/claim-api/api/getClaimList.php'),
+      Uri.parse('$apiUrl/getClaimList.php'),
       headers: {
         'Authorization': bearerToken,
         'Content-Type': 'application/json'
@@ -91,7 +91,7 @@ class ClaimController with ChangeNotifier {
 
   Future<void> loadCurrenciesFromAPI() async {
     final Response response = await post(
-      Uri.parse('https://ytygroup.app/claim-api/api/getCurrencyList.php'),
+      Uri.parse('$apiUrl/getCurrencyList.php'),
       headers: {
         'Authorization': bearerToken,
         'Content-Type': 'application/json'
@@ -116,7 +116,7 @@ class ClaimController with ChangeNotifier {
     late final Response response;
     try {
       response = await post(
-        Uri.parse('https://ytygroup.app/claim-api/api/getExchangeRate.php'),
+        Uri.parse('$apiUrl/getExchangeRate.php'),
         headers: {
           'Authorization': bearerToken,
           'Content-Type': 'application/json'

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:yty_claim_app/bearer_token.dart';
+import 'package:yty_claim_app/api_constants.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 
 import 'package:yty_claim_app/src/controllers/settings_controller.dart';
@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
     late final Response response;
     try {
       response = await post(
-        Uri.parse('https://ytygroup.app/claim-api/api/getEmployee.php'),
+        Uri.parse('$apiUrl/getEmployee.php'),
         headers: {
           'Authorization': bearerToken,
           'Content-Type': 'application/json'
@@ -122,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
     late final Response response;
     try {
       response = await post(
-        Uri.parse('https://ytygroup.app/claim-api/api/signIn.php'),
+        Uri.parse('$apiUrl/signIn.php'),
         headers: {
           'Authorization': bearerToken,
           'Content-Type': 'application/json'
