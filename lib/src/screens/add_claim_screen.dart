@@ -131,7 +131,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
           'KILOMETER': '',
           'RATE_PER_KILOMETER': '',
           'CLAIM_URL': '',
-          'Attachment': await getBase64(claim.attachment),
+          'ATTACHMENT': await getBase64(claim.attachment),
         }),
       );
     } catch (e) {
