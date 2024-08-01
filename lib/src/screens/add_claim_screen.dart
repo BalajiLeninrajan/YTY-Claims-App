@@ -54,6 +54,12 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
 
   File? _attachment;
 
+  final TextEditingController _distanceController =
+      TextEditingController.fromValue(
+    const TextEditingValue(text: '0'),
+  );
+  bool _distanceErrorFlag = false;
+
   bool _isLoading = false;
 
   @override
@@ -107,8 +113,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     });
     late final Response response;
     try {
-      String exchangeRate =
-          await widget.controller.getExchangeRate(claim.currency);
+      String exchangeRate = await widget.controller.getExchangeRate(
+        claim.currency ?? 'MYR',
+      );
       response = await post(
         Uri.parse('$apiUrl/saveClaim.php'),
         headers: {
@@ -124,11 +131,12 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
           'CLAIM_TAX_AMT': claim.tax.toString(),
           'CLAIM_CURRENCY_TYPE': claim.currency,
           'CLAIM_EXCHANGE_RATE': exchangeRate,
-          'TOTAL_CLAIM_AMT_MYR':
-              (claim.total * double.parse(exchangeRate)).toString(),
+          'TOTAL_CLAIM_AMT_MYR': claim.total == null
+              ? ''
+              : (claim.total! * double.parse(exchangeRate)).toString(),
           'REMARK': '',
           'CLAIM_FILE_EXTENSION': claim.attachment?.uri.pathSegments.last ?? '',
-          'KILOMETER': '',
+          'KILOMETER': claim.distance?.toString() ?? '',
           'RATE_PER_KILOMETER': '',
           'CLAIM_URL': '',
           'ATTACHMENT': await getBase64(claim.attachment),
@@ -165,16 +173,26 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
       generalFlag = false;
     }
 
-    if (double.tryParse(_billAmountController.text) == null) {
+    if (double.tryParse(_billAmountController.text) == null &&
+        _selectedClaimType?.code != "002") {
       setState(() {
         _billAmountErrorFlag = true;
       });
       generalFlag = false;
     }
 
-    if (double.tryParse(_taxController.text) == null) {
+    if (double.tryParse(_taxController.text) == null &&
+        _selectedClaimType?.code != "002") {
       setState(() {
         _taxErrorFlag = true;
+      });
+      generalFlag = false;
+    }
+
+    if (double.tryParse(_distanceController.text) == null &&
+        _selectedClaimType?.code == "002") {
+      setState(() {
+        _distanceErrorFlag = true;
       });
       generalFlag = false;
     }
@@ -184,6 +202,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
         _dateErrorFlag = false;
         _billAmountErrorFlag = false;
         _taxErrorFlag = false;
+        _distanceErrorFlag = false;
       });
 
       final newClaim = ClaimItem(
@@ -191,11 +210,18 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
         claimTypeName: _selectedClaimType!.name,
         billDate: _selectedDate!,
         description: _descriptionController.text,
-        billAmount: double.parse(_billAmountController.text),
-        tax: double.parse(_taxController.text),
-        currency: _selectedCurrency!,
-        total: _total,
+        billAmount: _selectedClaimType!.code == '002'
+            ? null
+            : double.parse(_billAmountController.text),
+        tax: _selectedClaimType!.code == '002'
+            ? null
+            : double.parse(_taxController.text),
+        currency: _selectedClaimType!.code == '002' ? null : _selectedCurrency,
+        total: _selectedClaimType!.code == '002' ? null : _total,
         attachment: _attachment,
+        distance: _selectedClaimType!.code == '002'
+            ? double.parse(_distanceController.text)
+            : null,
       );
 
       Response response = await _sendClaim(newClaim);
@@ -441,6 +467,19 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                       ),
                       const SizedBox(height: 24),
                       if (_selectedClaimType?.code != "002") _priceFromFields,
+                      if (_selectedClaimType?.code == "002")
+                        TextField(
+                          controller: _distanceController,
+                          decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            labelText: 'Distance (KM)',
+                            errorText:
+                                _distanceErrorFlag ? 'Distance required' : null,
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                        ),
                       const SizedBox(height: 16),
                       // attachment
                       FilledButton.tonalIcon(

@@ -6,22 +6,24 @@ class ClaimItem {
   final String claimTypeName;
   final DateTime billDate;
   final String description;
-  final double billAmount;
-  final double tax;
-  final String currency;
+  final double? billAmount;
+  final double? tax;
+  final String? currency;
   final File? attachment;
-  final double total;
+  final double? total;
+  final double? distance;
 
   ClaimItem({
     required this.claimTypeId,
     required this.claimTypeName,
     required this.billDate,
     required this.description,
-    required this.billAmount,
-    required this.tax,
-    required this.currency,
+    this.billAmount,
+    this.tax,
+    this.currency,
     this.attachment,
-    required this.total,
+    this.total,
+    this.distance,
   });
 
   Map<String, dynamic> _toJson() {
@@ -35,6 +37,7 @@ class ClaimItem {
       'currency': currency,
       'attachment': attachment?.path,
       'total': total,
+      'distance': distance,
     };
   }
 
@@ -65,6 +68,7 @@ class ClaimItem {
       currency: json['currency'],
       attachment: attachment,
       total: json['total'],
+      distance: json['distance'],
     );
   }
 

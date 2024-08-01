@@ -75,8 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
     late final Response response;
     for (ClaimItem claim in widget.claimController.claims) {
       try {
-        String exchangeRate =
-            await widget.claimController.getExchangeRate(claim.currency);
+        String exchangeRate = await widget.claimController.getExchangeRate(
+          claim.currency ?? 'MYR',
+        );
         response = await post(
           Uri.parse('$apiUrl/saveClaim.php'),
           headers: {
@@ -92,12 +93,13 @@ class _HomeScreenState extends State<HomeScreen> {
             'CLAIM_TAX_AMT': claim.tax.toString(),
             'CLAIM_CURRENCY_TYPE': claim.currency,
             'CLAIM_EXCHANGE_RATE': exchangeRate,
-            'TOTAL_CLAIM_AMT_MYR':
-                (claim.total * double.parse(exchangeRate)).toString(),
+            'TOTAL_CLAIM_AMT_MYR': claim.total == null
+                ? ''
+                : (claim.total! * double.parse(exchangeRate)).toString(),
             'REMARK': '',
             'CLAIM_FILE_EXTENSION':
                 claim.attachment?.uri.pathSegments.last ?? '',
-            'KILOMETER': '',
+            'KILOMETER': claim.distance?.toString() ?? '',
             'RATE_PER_KILOMETER': '',
             'CLAIM_URL': '',
             'ATTACHMENT': await getBase64(claim.attachment),
@@ -123,6 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+        print(responseData);
         if (responseData[0]['data'] != 'Save Success') {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
@@ -187,9 +190,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     ClaimItem claim = widget.claimController.claims[index];
                     return Card(
                       child: ListTile(
-                        title: Text(
-                          '${claim.claimTypeName} | ${claim.currency} ${claim.total.toStringAsFixed(2)}',
-                        ),
+                        title: claim.claimTypeId == "002"
+                            ? Text(
+                                '${claim.claimTypeName} | KM ${claim.distance!}',
+                              )
+                            : Text(
+                                '${claim.claimTypeName} | ${claim.currency} ${claim.total!.toStringAsFixed(2)}',
+                              ),
                         subtitle: Flexible(
                           child: Text(
                             claim.description,
