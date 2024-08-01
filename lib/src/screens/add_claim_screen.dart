@@ -174,7 +174,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     }
 
     if (double.tryParse(_billAmountController.text) == null &&
-        _selectedClaimType?.code != "002") {
+        _selectedClaimType?.code != '002') {
       setState(() {
         _billAmountErrorFlag = true;
       });
@@ -182,7 +182,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     }
 
     if (double.tryParse(_taxController.text) == null &&
-        _selectedClaimType?.code != "002") {
+        _selectedClaimType?.code != '002') {
       setState(() {
         _taxErrorFlag = true;
       });
@@ -190,7 +190,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     }
 
     if (double.tryParse(_distanceController.text) == null &&
-        _selectedClaimType?.code == "002") {
+        _selectedClaimType?.code == '002') {
       setState(() {
         _distanceErrorFlag = true;
       });
@@ -466,8 +466,8 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                         maxLength: 500,
                       ),
                       const SizedBox(height: 24),
-                      if (_selectedClaimType?.code != "002") _priceFromFields,
-                      if (_selectedClaimType?.code == "002")
+                      if (_selectedClaimType?.code != '002') _priceFromFields,
+                      if (_selectedClaimType?.code == '002')
                         TextField(
                           controller: _distanceController,
                           decoration: InputDecoration(

@@ -190,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ClaimItem claim = widget.claimController.claims[index];
                     return Card(
                       child: ListTile(
-                        title: claim.claimTypeId == "002"
+                        title: claim.claimTypeId == '002'
                             ? Text(
                                 '${claim.claimTypeName} | KM ${claim.distance!}',
                               )

@@ -60,7 +60,7 @@ class SettingsController with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    _loginFlag = "";
+    _loginFlag = '';
     notifyListeners();
 
     await _settingsService.removeLoginFlag();
