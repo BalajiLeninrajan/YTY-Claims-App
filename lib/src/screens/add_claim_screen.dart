@@ -299,6 +299,78 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     }
   }
 
+  Widget get _priceFromFields => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Currency
+          DropdownButtonFormField<String>(
+            items: widget.controller.currencies
+                .map<DropdownMenuItem<String>>(
+                  (String currency) => DropdownMenuItem<String>(
+                    value: currency,
+                    child: Text(currency),
+                  ),
+                )
+                .toList(),
+            value: _selectedCurrency,
+            onChanged: (String? currency) {
+              setState(() {
+                _selectedCurrency = currency;
+              });
+            },
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: 'Currency',
+              errorText: _selectedCurrency == null ? 'Currency Required' : null,
+            ),
+          ),
+          const SizedBox(height: 24),
+          // bill ammount
+          TextField(
+            controller: _billAmountController,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: 'Bill Amount',
+              errorText: _billAmountErrorFlag ? 'Bill Amount Required' : null,
+            ),
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))
+            ],
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+            ),
+          ),
+          const SizedBox(height: 24),
+          // tax ammount
+          TextField(
+            controller: _taxController,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: 'Tax Amount',
+              errorText: _taxErrorFlag ? 'Tax Amount Required' : null,
+            ),
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))
+            ],
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // total
+          TextButton.icon(
+            onPressed: () {},
+            label: Text(
+              'Total ($_selectedCurrency): ${_total.toStringAsFixed(2)}',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            icon: const Icon(Icons.wallet),
+          ),
+        ],
+      );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -368,79 +440,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                         maxLength: 500,
                       ),
                       const SizedBox(height: 24),
-                      // Currency
-                      DropdownButtonFormField<String>(
-                        items: widget.controller.currencies
-                            .map<DropdownMenuItem<String>>(
-                              (String currency) => DropdownMenuItem<String>(
-                                value: currency,
-                                child: Text(currency),
-                              ),
-                            )
-                            .toList(),
-                        value: _selectedCurrency,
-                        onChanged: (String? currency) {
-                          setState(() {
-                            _selectedCurrency = currency;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          border: const OutlineInputBorder(),
-                          labelText: 'Currency',
-                          errorText: _selectedCurrency == null
-                              ? 'Currency Required'
-                              : null,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // bill ammount
-                      TextField(
-                        controller: _billAmountController,
-                        decoration: InputDecoration(
-                          border: const OutlineInputBorder(),
-                          labelText: 'Bill Amount',
-                          errorText: _billAmountErrorFlag
-                              ? 'Bill Amount Required'
-                              : null,
-                        ),
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d*\.?\d{0,2}'))
-                        ],
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // tax ammount
-                      TextField(
-                        controller: _taxController,
-                        decoration: InputDecoration(
-                          border: const OutlineInputBorder(),
-                          labelText: 'Tax Amount',
-                          errorText:
-                              _taxErrorFlag ? 'Tax Amount Required' : null,
-                        ),
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d*\.?\d{0,2}'))
-                        ],
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // total
-                      TextButton.icon(
-                        onPressed: () {},
-                        label: Text(
-                          'Total ($_selectedCurrency): ${_total.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        icon: const Icon(Icons.wallet),
-                      ),
+                      if (_selectedClaimType?.code != "002") _priceFromFields,
                       const SizedBox(height: 16),
                       // attachment
                       FilledButton.tonalIcon(
