@@ -71,7 +71,7 @@ class SettingsScreen extends StatelessWidget {
                 label: const Text('Logout'),
                 icon: const Icon(Icons.logout),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 32),
               const Text('Version: 0.2.0'),
               const SizedBox(height: 128),
             ],
