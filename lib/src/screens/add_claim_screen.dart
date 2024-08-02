@@ -53,6 +53,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
   double _total = 0;
 
   File? _attachment;
+  bool _attachErrorFlag = false;
 
   final TextEditingController _distanceController =
       TextEditingController.fromValue(
@@ -204,6 +205,13 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
       generalFlag = false;
     }
 
+    if (_attachment == null) {
+      setState(() {
+        _attachErrorFlag = true;
+      });
+      generalFlag = false;
+    }
+
     if (generalFlag) {
       setState(() {
         _dateErrorFlag = false;
@@ -264,6 +272,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     if (result != null) {
       setState(() {
         _attachment = File(result!.files.single.path!);
+        _attachErrorFlag = false;
       });
     } else {
       if (mounted) {
@@ -292,6 +301,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     if (photo != null) {
       setState(() {
         _attachment = File(photo!.path);
+        _attachErrorFlag = false;
       });
     } else {
       if (mounted) {
@@ -320,6 +330,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     if (photo != null) {
       setState(() {
         _attachment = File(photo!.path);
+        _attachErrorFlag = false;
       });
     } else {
       if (mounted) {
@@ -567,6 +578,12 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                                   : _attachment!.path,
                         ),
                         icon: const Icon(Icons.attach_file),
+                        style: _attachErrorFlag
+                            ? FilledButton.styleFrom(
+                                foregroundColor: Colors.red,
+                                iconColor: Colors.red,
+                              )
+                            : null,
                       ),
                       const SizedBox(height: 16),
                       OverflowBar(
