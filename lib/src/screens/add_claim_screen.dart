@@ -468,8 +468,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                         icon: const Icon(Icons.date_range),
                         style: _dateErrorFlag
                             ? TextButton.styleFrom(
-                                foregroundColor: Colors.red,
-                                iconColor: Colors.red,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.error,
+                                iconColor: Theme.of(context).colorScheme.error,
                               )
                             : null,
                       ),
@@ -580,8 +581,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                         icon: const Icon(Icons.attach_file),
                         style: _attachErrorFlag
                             ? FilledButton.styleFrom(
-                                foregroundColor: Colors.red,
-                                iconColor: Colors.red,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.error,
+                                iconColor: Theme.of(context).colorScheme.error,
                               )
                             : null,
                       ),
