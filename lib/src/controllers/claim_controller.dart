@@ -52,14 +52,19 @@ class ClaimController with ChangeNotifier {
   }
 
   Future<void> loadClaimTypesFromAPI(String claimGroup) async {
-    final Response response = await post(
-      Uri.parse('$apiUrl/getClaimList.php'),
-      headers: {
-        'Authorization': bearerToken,
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode({'CLAIMGROUP': claimGroup}),
-    );
+    late final Response response;
+    try {
+      response = await post(
+        Uri.parse('$apiUrl/getClaimList.php'),
+        headers: {
+          'Authorization': bearerToken,
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({'CLAIMGROUP': claimGroup}),
+      );
+    } catch (e) {
+      rethrow; // TODO
+    }
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       _claimTypes = responseData[0]['data']
@@ -71,7 +76,7 @@ class ClaimController with ChangeNotifier {
           )
           .toList();
     } else {
-      throw Exception();
+      throw Exception("Error: getClaimList.php ${response.statusCode}");
     }
 
     notifyListeners();
@@ -90,13 +95,18 @@ class ClaimController with ChangeNotifier {
   }
 
   Future<void> loadCurrenciesFromAPI() async {
-    final Response response = await post(
-      Uri.parse('$apiUrl/getCurrencyList.php'),
-      headers: {
-        'Authorization': bearerToken,
-        'Content-Type': 'application/json'
-      },
-    );
+    late final Response response;
+    try {
+      response = await post(
+        Uri.parse('$apiUrl/getCurrencyList.php'),
+        headers: {
+          'Authorization': bearerToken,
+          'Content-Type': 'application/json'
+        },
+      );
+    } catch (e) {
+      rethrow;
+    }
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       _currencies = responseData[0]['data']
@@ -105,7 +115,7 @@ class ClaimController with ChangeNotifier {
           )
           .toList();
     } else {
-      throw Exception();
+      throw Exception("Error: getCurrencyList.php  ${response.statusCode}");
     }
 
     notifyListeners();
@@ -129,14 +139,14 @@ class ClaimController with ChangeNotifier {
         ),
       );
     } catch (e) {
-      throw Exception();
+      rethrow;
     }
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       return responseData[0]['data'][0]['RATE'];
+    } else {
+      throw Exception("Error: getExchangeRate.php ${response.statusCode}");
     }
-
-    return '1';
   }
 
   Future<void> clearCurrencies() async {

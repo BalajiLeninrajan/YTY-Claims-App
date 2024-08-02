@@ -113,9 +113,14 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     });
     late final Response response;
     try {
-      String exchangeRate = await widget.controller.getExchangeRate(
-        claim.currency ?? 'MYR',
-      );
+      late String exchangeRate;
+      if (claim.claimTypeId != '002') {
+        exchangeRate = await widget.controller.getExchangeRate(
+          claim.currency ?? 'MYR',
+        );
+      } else {
+        exchangeRate = '1';
+      }
       response = await post(
         Uri.parse('$apiUrl/saveClaim.php'),
         headers: {
@@ -127,12 +132,12 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
           'CLAIM_TYPE': claim.claimTypeId,
           'DT': claim.billDate.toIso8601String().substring(0, 10),
           'CLAIM_DESCRIPTION': claim.description,
-          'CLAIM_BILL_AMT': claim.billAmount.toString(),
-          'CLAIM_TAX_AMT': claim.tax.toString(),
-          'CLAIM_CURRENCY_TYPE': claim.currency,
+          'CLAIM_BILL_AMT': claim.billAmount?.toString() ?? '0',
+          'CLAIM_TAX_AMT': claim.tax?.toString() ?? '0',
+          'CLAIM_CURRENCY_TYPE': claim.currency ?? 'MYR',
           'CLAIM_EXCHANGE_RATE': exchangeRate,
           'TOTAL_CLAIM_AMT_MYR': claim.total == null
-              ? ''
+              ? '0'
               : (claim.total! * double.parse(exchangeRate)).toString(),
           'REMARK': '',
           'CLAIM_FILE_EXTENSION': claim.attachment?.uri.pathSegments.last ?? '',
@@ -173,7 +178,8 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
       generalFlag = false;
     }
 
-    if (double.tryParse(_billAmountController.text) == null &&
+    if ((double.tryParse(_billAmountController.text) == null ||
+            double.tryParse(_billAmountController.text) == 0) &&
         _selectedClaimType?.code != '002') {
       setState(() {
         _billAmountErrorFlag = true;
@@ -357,7 +363,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               labelText: 'Bill Amount',
-              errorText: _billAmountErrorFlag ? 'Bill Amount Required' : null,
+              errorText: _billAmountErrorFlag
+                  ? 'Bill Amount must at least be 1'
+                  : null,
             ),
             inputFormatters: <TextInputFormatter>[
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))

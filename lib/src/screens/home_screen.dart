@@ -75,9 +75,14 @@ class _HomeScreenState extends State<HomeScreen> {
     late final Response response;
     for (ClaimItem claim in widget.claimController.claims) {
       try {
-        String exchangeRate = await widget.claimController.getExchangeRate(
-          claim.currency ?? 'MYR',
-        );
+        late String exchangeRate;
+        if (claim.claimTypeId != '002') {
+          exchangeRate = await widget.claimController.getExchangeRate(
+            claim.currency ?? 'MYR',
+          );
+        } else {
+          exchangeRate = '1';
+        }
         response = await post(
           Uri.parse('$apiUrl/saveClaim.php'),
           headers: {
@@ -89,12 +94,12 @@ class _HomeScreenState extends State<HomeScreen> {
             'CLAIM_TYPE': claim.claimTypeId,
             'DT': claim.billDate.toIso8601String().substring(0, 10),
             'CLAIM_DESCRIPTION': claim.description,
-            'CLAIM_BILL_AMT': claim.billAmount.toString(),
-            'CLAIM_TAX_AMT': claim.tax.toString(),
-            'CLAIM_CURRENCY_TYPE': claim.currency,
+            'CLAIM_BILL_AMT': claim.billAmount?.toString() ?? '0',
+            'CLAIM_TAX_AMT': claim.tax?.toString() ?? '0',
+            'CLAIM_CURRENCY_TYPE': claim.currency ?? 'MYR',
             'CLAIM_EXCHANGE_RATE': exchangeRate,
             'TOTAL_CLAIM_AMT_MYR': claim.total == null
-                ? ''
+                ? '0'
                 : (claim.total! * double.parse(exchangeRate)).toString(),
             'REMARK': '',
             'CLAIM_FILE_EXTENSION':
@@ -108,8 +113,8 @@ class _HomeScreenState extends State<HomeScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Error Sending Claim'),
+            SnackBar(
+              content: Text('Error: ${e.toString()}'),
             ),
           );
         }
@@ -125,19 +130,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        print(responseData);
         if (responseData[0]['data'] != 'Save Success') {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to send claims')),
+            SnackBar(content: Text(responseData[0]['data'] as String)),
           );
           return;
         }
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Connection to server failed'),
+          SnackBar(
+            content: Text(response.statusCode.toString()),
           ),
         );
         return;
