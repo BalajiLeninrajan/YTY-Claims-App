@@ -21,6 +21,8 @@ class MyApp extends StatelessWidget {
   final SettingsController settingsController;
   final ClaimController claimController;
 
+  static const String appVersion = '0.2.1';
+
   @override
   Widget build(BuildContext context) {
     // Glue the SettingsController to the MaterialApp.

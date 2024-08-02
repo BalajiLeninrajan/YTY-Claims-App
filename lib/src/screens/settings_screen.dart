@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yty_claim_app/src/app.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:yty_claim_app/src/screens/login_screen.dart';
 
@@ -72,7 +73,7 @@ class SettingsScreen extends StatelessWidget {
                 icon: const Icon(Icons.logout),
               ),
               const SizedBox(height: 32),
-              const Text('Version: 0.2.0'),
+              const Text('Version: ${MyApp.appVersion}'),
               const SizedBox(height: 128),
             ],
           ),
