@@ -179,7 +179,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
     }
 
     if ((double.tryParse(_billAmountController.text) == null ||
-            double.tryParse(_billAmountController.text) == 0) &&
+            double.tryParse(_billAmountController.text)! <= 0) &&
         _selectedClaimType?.code != '002') {
       setState(() {
         _billAmountErrorFlag = true;
@@ -195,7 +195,8 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
       generalFlag = false;
     }
 
-    if (double.tryParse(_distanceController.text) == null &&
+    if ((double.tryParse(_distanceController.text) == null ||
+            double.tryParse(_distanceController.text)! <= 0) &&
         _selectedClaimType?.code == '002') {
       setState(() {
         _distanceErrorFlag = true;
@@ -363,9 +364,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               labelText: 'Bill Amount',
-              errorText: _billAmountErrorFlag
-                  ? 'Bill Amount must at least be 1'
-                  : null,
+              errorText: _billAmountErrorFlag ? 'Bill Amount Required' : null,
             ),
             inputFormatters: <TextInputFormatter>[
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))
@@ -482,7 +481,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                             border: const OutlineInputBorder(),
                             labelText: 'Distance (KM)',
                             errorText:
-                                _distanceErrorFlag ? 'Distance required' : null,
+                                _distanceErrorFlag ? 'Distance Required' : null,
                           ),
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
