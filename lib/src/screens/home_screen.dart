@@ -201,11 +201,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             : Text(
                                 '${claim.claimTypeName} | ${claim.currency} ${claim.total!.toStringAsFixed(2)}',
                               ),
-                        subtitle: Flexible(
-                          child: Text(
-                            claim.description,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                        subtitle: Text(
+                          claim.description,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         trailing: IconButton(
                           onPressed: () => _showConfirmDialog(context, claim),
