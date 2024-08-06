@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:yty_claim_app/src/controllers/claim_service.dart';
 
-import 'src/app.dart';
-import 'src/controllers/settings_controller.dart';
-import 'src/controllers/settings_service.dart';
+import 'package:yty_claim_app/src/app.dart';
+import 'package:yty_claim_app/src/controllers/settings_controller.dart';
+import 'package:yty_claim_app/src/controllers/settings_service.dart';
+import 'package:yty_claim_app/src/controllers/update_controller.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -28,6 +29,10 @@ void main() async {
   await claimController.loadClaims();
   await claimController.loadClaimTypes();
   await claimController.loadCurrencies();
+
+  if (await UpdateController.getUpdateStatus(MyApp.appVersion)) {
+    await (UpdateController.tryOtaUpdate());
+  }
 
   // http overide
   // TODO: REMOVE FOR PROD
