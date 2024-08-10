@@ -28,13 +28,15 @@ class UpdateController extends ChangeNotifier {
     return false;
   }
 
-  static Future<void> tryOtaUpdate() async {
+  static Stream<OtaEvent>? tryOtaUpdate() {
     try {
-      OtaUpdate().execute(
+      Stream<OtaEvent> progress = OtaUpdate().execute(
         'https://ytygroup.app/claim-api/files/YTYClaim.apk',
       );
+      return progress;
     } catch (e) {
       print(e);
     }
+    return null;
   }
 }
