@@ -383,6 +383,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
             keyboardType: const TextInputType.numberWithOptions(
               decimal: true,
             ),
+            onChanged: (String? value) => setState(() {
+              _billAmountErrorFlag = false;
+            }),
           ),
           const SizedBox(height: 24),
           // tax ammount
@@ -399,6 +402,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
             keyboardType: const TextInputType.numberWithOptions(
               decimal: true,
             ),
+            onChanged: (String? value) => setState(() {
+              _taxErrorFlag = false;
+            }),
           ),
           const SizedBox(height: 16),
           // total
@@ -498,6 +504,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
+                          onChanged: (String? value) => setState(() {
+                            _distanceErrorFlag = false;
+                          }),
                         ),
                       const SizedBox(height: 16),
                       // attachment
