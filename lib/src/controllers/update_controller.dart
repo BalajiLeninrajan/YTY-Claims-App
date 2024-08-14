@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:ota_update/ota_update.dart';
 import 'package:yty_claim_app/api_constants.dart';
 
 class UpdateController extends ChangeNotifier {
@@ -26,17 +25,5 @@ class UpdateController extends ChangeNotifier {
       return updateStatus == '0' ? false : true;
     }
     return false;
-  }
-
-  static Stream<OtaEvent>? tryOtaUpdate() {
-    try {
-      Stream<OtaEvent> progress = OtaUpdate().execute(
-        'https://ytygroup.app/claim-api/files/YTYClaim.apk',
-      );
-      return progress;
-    } catch (e) {
-      print(e);
-    }
-    return null;
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ota_update/ota_update.dart';
 import 'package:yty_claim_app/src/app.dart';
 import 'package:yty_claim_app/src/controllers/claim_controller.dart';
 import 'package:yty_claim_app/src/controllers/update_controller.dart';
@@ -28,8 +27,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isLoading = false;
-  String? _status;
-  double _progress = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -100,26 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           );
                         }
 
-                        final stream = UpdateController.tryOtaUpdate();
-                        if (stream == null) {
-                          if (mounted) {
-                            // ignore: use_build_context_synchronously
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Update Failed'),
-                              ),
-                            );
-                          }
-                          return;
-                        }
                         setState(() => _isLoading = false);
-                        await for (final value in stream) {
-                          setState(() {
-                            _status = value.status.name;
-                            _progress = double.parse(value.value ?? '0') * 0.01;
-                            print(_progress);
-                          });
-                        }
                       } else {
                         setState(() => _isLoading = false);
                         if (mounted) {
@@ -137,13 +115,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 16),
                   const Text('Version: ${MyApp.appVersion}'),
-                  if (_status != null)
-                    Text('Update Status: ${_status!.toLowerCase()}'),
-                  if (_status == OtaStatus.DOWNLOADING.name)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: LinearProgressIndicator(value: _progress),
-                    ),
                   const SizedBox(height: 128),
                 ],
               ),
