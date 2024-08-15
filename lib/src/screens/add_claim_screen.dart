@@ -90,7 +90,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(DateTime.now().year - 3),
-      lastDate: DateTime(DateTime.now().year + 1),
+      lastDate: DateTime(DateTime.now().year),
     );
     if (newDate != null && newDate != _selectedDate) {
       setState(() {
