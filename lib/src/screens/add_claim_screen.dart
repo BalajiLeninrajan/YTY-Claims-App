@@ -32,7 +32,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
 
   ClaimType? _selectedClaimType;
 
-  DateTime? _selectedDate;
+  DateTime? _selectedDate = DateTime.now();
   bool _dateErrorFlag = false;
 
   final TextEditingController _descriptionController = TextEditingController();
@@ -90,7 +90,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(DateTime.now().year - 3),
-      lastDate: DateTime(DateTime.now().year),
+      lastDate: DateTime.now(),
     );
     if (newDate != null && newDate != _selectedDate) {
       setState(() {
