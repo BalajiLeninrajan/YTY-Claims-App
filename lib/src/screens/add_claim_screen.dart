@@ -424,7 +424,7 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sync')),
+      appBar: AppBar(title: const Text('Add Claim')),
       body: SafeArea(
         child: Stack(
           children: [
@@ -604,9 +604,9 @@ class _AddClaimScreenState extends State<AddClaimScreen> {
                             onPressed: _addTask,
                             label: const Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Text('Add Claim'),
+                              child: Text('SYNC'),
                             ),
-                            icon: const Icon(Icons.add),
+                            icon: const Icon(Icons.move_up),
                           )
                         ],
                       ),
