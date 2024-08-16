@@ -43,11 +43,9 @@ app.*.map.json
 /android/app/release
 
 # Builds
-/android
 /linux
 /windows
 /web
 /macos
-/ios
 
 /lib/bearer_token.dart
